@@ -1,0 +1,35 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Node.js Server",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/server/index.ts",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "runtimeArgs": ["-r", "tsx/cjs"],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "restart": true,
+      "protocol": "inspector"
+    },
+    {
+      "name": "Debug Full Stack",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/server/index.ts",
+      "runtimeArgs": ["-r", "tsx/cjs"],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "serverReadyAction": {
+        "pattern": "serving on port ([0-9]+)",
+        "uriFormat": "http://localhost:%s",
+        "action": "openExternally"
+      }
+    }
+  ]
+}
