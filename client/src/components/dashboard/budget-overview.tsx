@@ -40,21 +40,13 @@ export function BudgetOverview() {
     });
   }
 
-  // If no budgets exist, show sample budget data
-  const sampleBudgets = [
-    { category: { name: "Food & Dining", color: "#f97316" }, amount: "500", spent: expenseMap.get("Food & Dining") || 420 },
-    { category: { name: "Transportation", color: "#eab308" }, amount: "250", spent: expenseMap.get("Transportation") || 180 },
-    { category: { name: "Entertainment", color: "#3b82f6" }, amount: "200", spent: expenseMap.get("Entertainment") || 95 },
-    { category: { name: "Shopping", color: "#ef4444" }, amount: "300", spent: expenseMap.get("Shopping") || 350 },
-  ];
-
-  // Map budget data with actual spending
+  // Map budget data with actual spending from category expenses
   const budgetData = budgets && budgets.length > 0 
     ? budgets.map((budget: any) => ({
         ...budget,
         spent: expenseMap.get(budget.category?.name) || 0
       }))
-    : sampleBudgets;
+    : [];
 
   return (
     <Card className="bg-white rounded-xl border border-slate-200 shadow-sm">
@@ -63,7 +55,13 @@ export function BudgetOverview() {
         <p className="text-sm text-slate-600 mt-1">Your spending vs budget for this month</p>
       </CardHeader>
       <CardContent className="space-y-6">
-        {budgetData.map((budget: any, index: number) => {
+        {budgetData.length === 0 ? (
+          <div className="text-center py-8 text-slate-500">
+            <p>No budgets set for this month.</p>
+            <p className="text-sm mt-2">Create budgets to track your spending goals.</p>
+          </div>
+        ) : (
+          budgetData.map((budget: any, index: number) => {
           const budgetAmount = typeof budget.amount === 'number' ? budget.amount : parseFloat(budget.amount || '0');
           const spentAmount = budget.spent || 0;
           const percentage = budgetAmount > 0 ? Math.min((spentAmount / budgetAmount) * 100, 100) : 0;
@@ -104,7 +102,7 @@ export function BudgetOverview() {
               )}
             </div>
           );
-        })}
+        }))}
       </CardContent>
     </Card>
   );
