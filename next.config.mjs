@@ -1,8 +1,6 @@
-// next.config.mjs
 const nextConfig = {
-  experimental: {
-    appDir: true,
-  },
+  // Remove this line ↓↓↓
+  // experimental: { appDir: true },
   typescript: {
     ignoreBuildErrors: false,
   },
