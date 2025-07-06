@@ -70,8 +70,17 @@ export function BudgetOverview() {
           </div>
         ) : (
           budgetData.map((budget: any, index: number) => {
+          // Debug logging to identify the issue
+          console.log('Raw budget data:', budget);
+          console.log('budget.amount:', budget.amount, 'type:', typeof budget.amount);
+          console.log('budget.spent:', budget.spent, 'type:', typeof budget.spent);
+          
           const budgetAmount = typeof budget.amount === 'number' ? budget.amount : parseFloat(budget.amount || '0');
-          const spentAmount = budget.spent || 0;
+          const spentAmount = typeof budget.spent === 'number' ? budget.spent : parseFloat(budget.spent || '0');
+          
+          console.log('Parsed budgetAmount:', budgetAmount);
+          console.log('Parsed spentAmount:', spentAmount);
+          
           const percentage = budgetAmount > 0 ? Math.min((spentAmount / budgetAmount) * 100, 100) : 0;
           const isOverBudget = spentAmount > budgetAmount;
 

@@ -86,7 +86,17 @@ export function BudgetOverview() {
     },
   ];
 
-  const budgetData = budgets && budgets.length > 0 ? budgets : sampleBudgets;
+  // Map budget data with actual spending from category expenses
+  const budgetData = budgets && budgets.length > 0 
+    ? budgets.map((budget: any) => {
+        const categoryName = budget.category?.name;
+        const spentAmount = expenseMap.get(categoryName) || 0;
+        return {
+          ...budget,
+          spent: spentAmount
+        };
+      })
+    : [];
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -123,10 +133,17 @@ export function BudgetOverview() {
             animate="visible"
             className="space-y-6"
           >
-            {budgetData.map((budget: any, index: number) => {
-              const percentage = Math.min((budget.spent / budget.amount) * 100, 100);
-              const isOverBudget = budget.spent > budget.amount;
-              const remaining = budget.amount - budget.spent;
+            {budgetData.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <p>No budgets set for this month.</p>
+                <p className="text-sm mt-2">Create budgets to track your spending goals.</p>
+              </div>
+            ) : budgetData.map((budget: any, index: number) => {
+              const budgetAmount = typeof budget.amount === 'number' ? budget.amount : parseFloat(budget.amount || '0');
+              const spentAmount = typeof budget.spent === 'number' ? budget.spent : parseFloat(budget.spent || '0');
+              const percentage = budgetAmount > 0 ? Math.min((spentAmount / budgetAmount) * 100, 100) : 0;
+              const isOverBudget = spentAmount > budgetAmount;
+              const remaining = budgetAmount - spentAmount;
 
               return (
                 <motion.div
@@ -139,17 +156,17 @@ export function BudgetOverview() {
                       <div 
                         className="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-md"
                         style={{ 
-                          background: `linear-gradient(135deg, ${budget.category.color}, ${budget.category.color}dd)` 
+                          background: `linear-gradient(135deg, ${budget.category?.color || '#6b7280'}, ${budget.category?.color || '#6b7280'}dd)` 
                         }}
                       >
-                        <i className={`${budget.category.icon} text-sm`}></i>
+                        <i className={`${budget.category?.icon || 'fas fa-circle'} text-sm`}></i>
                       </div>
                       <div>
                         <h3 className="font-semibold text-gray-800 group-hover:text-gray-900 transition-colors">
                           {budget.category.name}
                         </h3>
                         <p className="text-xs text-gray-500">
-                          {formatCurrency(budget.spent)} of {formatCurrency(budget.amount)}
+                          {formatCurrency(spentAmount)} of {formatCurrency(budgetAmount)}
                         </p>
                       </div>
                     </div>
@@ -202,13 +219,19 @@ export function BudgetOverview() {
               <div className="text-center p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg">
                 <div className="text-sm text-gray-600">Total Budget</div>
                 <div className="text-lg font-bold text-green-700">
-                  {formatCurrency(budgetData.reduce((sum: number, budget: any) => sum + budget.amount, 0))}
+                  {formatCurrency(budgetData.reduce((sum: number, budget: any) => {
+                    const amount = typeof budget.amount === 'number' ? budget.amount : parseFloat(budget.amount || '0');
+                    return sum + (isNaN(amount) ? 0 : amount);
+                  }, 0))}
                 </div>
               </div>
               <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg">
                 <div className="text-sm text-gray-600">Total Spent</div>
                 <div className="text-lg font-bold text-blue-700">
-                  {formatCurrency(budgetData.reduce((sum: number, budget: any) => sum + budget.spent, 0))}
+                  {formatCurrency(budgetData.reduce((sum: number, budget: any) => {
+                    const spent = typeof budget.spent === 'number' ? budget.spent : parseFloat(budget.spent || '0');
+                    return sum + (isNaN(spent) ? 0 : spent);
+                  }, 0))}
                 </div>
               </div>
             </div>
