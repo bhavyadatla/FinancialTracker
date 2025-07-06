@@ -90,7 +90,11 @@ export class MongoMemoryStorage implements IStorage {
       { name: "Housing", color: "#8b5cf6", icon: "fas fa-home" },
       { name: "Entertainment", color: "#3b82f6", icon: "fas fa-gamepad" },
       { name: "Shopping", color: "#ef4444", icon: "fas fa-shopping-bag" },
-      { name: "Income", color: "#059669", icon: "fas fa-money-bill" },
+      { name: "Salary", color: "#059669", icon: "fas fa-money-bill" },
+      { name: "Gift", color: "#10b981", icon: "fas fa-gift" },
+      { name: "Investment", color: "#34d399", icon: "fas fa-chart-line" },
+      { name: "Business", color: "#6ee7b7", icon: "fas fa-briefcase" },
+      { name: "Other Income", color: "#a7f3d0", icon: "fas fa-plus-circle" },
       { name: "Healthcare", color: "#06b6d4", icon: "fas fa-heartbeat" },
       { name: "Other", color: "#64748b", icon: "fas fa-ellipsis-h" },
     ];

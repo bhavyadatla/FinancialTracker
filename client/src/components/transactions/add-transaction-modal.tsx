@@ -30,7 +30,7 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
     defaultValues: {
       description: "",
       amount: 0,
-      categoryId: 0,
+      categoryId: "",
       date: new Date().toISOString().split('T')[0],
       type: "expense",
     },

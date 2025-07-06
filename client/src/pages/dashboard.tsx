@@ -1,8 +1,8 @@
 import { SummaryCards } from "@/components/dashboard/summary-cards";
-import { MonthlyExpensesChart } from "@/components/dashboard/monthly-expenses-chart";
-import { CategoryPieChart } from "@/components/dashboard/category-pie-chart";
-import { RecentTransactions } from "@/components/dashboard/recent-transactions";
-import { BudgetOverview } from "@/components/dashboard/budget-overview";
+import { MonthlyExpensesChart } from "@/components/dashboard/monthly-expenses-chart-new";
+import { CategoryPieChart } from "@/components/dashboard/category-pie-chart-enhanced";
+import { RecentTransactions } from "@/components/dashboard/recent-transactions-enhanced";
+import { BudgetOverview } from "@/components/dashboard/budget-overview-enhanced";
 
 export default function Dashboard() {
   return (

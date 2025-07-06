@@ -142,7 +142,7 @@ export default function Transactions() {
                 <SelectContent>
                   <SelectItem value="">All categories</SelectItem>
                   {categories?.map((category) => (
-                    <SelectItem key={category.id} value={category.id.toString()}>
+                    <SelectItem key={category._id} value={category._id}>
                       {category.name}
                     </SelectItem>
                   ))}

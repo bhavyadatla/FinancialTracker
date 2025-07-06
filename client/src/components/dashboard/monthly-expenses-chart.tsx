@@ -1,8 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from "recharts";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { motion } from "framer-motion";
+import { TimeFilter, type TimeFilterType, getDateRangeFromFilter } from "@/components/analytics/time-filter";
 
 export function MonthlyExpensesChart() {
   const [months, setMonths] = useState("6");
