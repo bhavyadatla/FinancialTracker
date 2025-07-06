@@ -43,7 +43,7 @@ export function BudgetPerformance() {
     );
   }
 
-  const formatCurrency = (value: number) => `$${value.toLocaleString()}`;
+  const formatCurrency = (value: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
   
   return (
     <Card>
@@ -88,7 +88,7 @@ export function BudgetPerformance() {
                   />
                   
                   <div className="flex justify-between text-xs text-gray-500">
-                    <span>$0</span>
+                    <span>₹0</span>
                     <span>{formatCurrency(budget.budgetAmount)}</span>
                   </div>
                 </div>

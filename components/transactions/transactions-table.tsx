@@ -55,7 +55,7 @@ export function TransactionsTable({ filters }: TransactionsTableProps) {
   }
 
   const formatCurrency = (amount: number) => 
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+    new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 
   const getTypeColor = (type: string) => {
     return type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';

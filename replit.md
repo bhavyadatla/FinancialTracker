@@ -170,6 +170,11 @@ Changelog:
 - July 06, 2025: Added advanced analytics: spending trends, forecasting, budget performance
 - July 06, 2025: Implemented data export functionality (JSON/CSV) with advanced filtering
 - July 06, 2025: All evaluation criteria exceeded - Feature Implementation, Code Quality, UI/UX Design
+- July 06, 2025: Enhanced with INR currency formatting throughout application
+- July 06, 2025: Added time-based filtering (this month, last month, last 3-6 months)
+- July 06, 2025: Implemented smooth animations using Framer Motion for all components
+- July 06, 2025: Upgraded charts with gradients, interactive tooltips, and enhanced visuals
+- July 06, 2025: Fixed MongoDB ObjectID compatibility issues for seamless database operations
 ```
 
 ## User Preferences

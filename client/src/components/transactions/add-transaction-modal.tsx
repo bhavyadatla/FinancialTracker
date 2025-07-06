@@ -117,7 +117,7 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
+                  <Select onValueChange={(value) => field.onChange(value)} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a category" />
@@ -125,7 +125,7 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
                     </FormControl>
                     <SelectContent>
                       {categories?.map((category) => (
-                        <SelectItem key={category.id} value={category.id.toString()}>
+                        <SelectItem key={category._id} value={category._id}>
                           {category.name}
                         </SelectItem>
                       ))}
