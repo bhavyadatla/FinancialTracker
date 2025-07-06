@@ -1,15 +1,15 @@
-import { storage } from "@/app/storage"; // ✅ Use alias or use '../../../storage'
-import { insertTransactionSchema } from "@/shared/schema"; // ✅ Adjust if needed
-import { NextRequest, NextResponse } from "next/server";
+import { storage } from "@/app/storage";
+import { insertTransactionSchema } from "@/shared/schema";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 
 // GET /api/transactions/[id]
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  context: { params: { id: string } }
 ) {
   try {
-    const id = parseInt(params.id);
+    const id = parseInt(context.params.id);
     const transaction = await storage.getTransactionById(id);
 
     if (!transaction) {
@@ -31,11 +31,11 @@ export async function GET(
 
 // PATCH /api/transactions/[id]
 export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  context: { params: { id: string } }
 ) {
   try {
-    const id = parseInt(params.id);
+    const id = parseInt(context.params.id);
     const body = await request.json();
     const parsed = insertTransactionSchema.partial().parse(body);
 
@@ -67,11 +67,11 @@ export async function PATCH(
 
 // DELETE /api/transactions/[id]
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  context: { params: { id: string } }
 ) {
   try {
-    const id = parseInt(params.id);
+    const id = parseInt(context.params.id);
     const deleted = await storage.deleteTransaction(id);
 
     if (!deleted) {
