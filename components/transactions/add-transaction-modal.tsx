@@ -36,7 +36,7 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
   const transactionType = form.watch("type");
 
   const { data: categories = [] } = useQuery<Category[]>({
-    queryKey: ["/api/categories", transactionType],
+    queryKey: [`/api/categories/${transactionType}`],
     enabled: !!transactionType,
   });
 
