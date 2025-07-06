@@ -52,6 +52,7 @@ export class MongoMemoryStorage implements IStorage {
     this.budgets = new Map();
     this.currentId = 1;
     this.initializeDefaultCategories();
+    this.initializeSampleData();
   }
 
   private generateId(): string {
@@ -74,6 +75,154 @@ export class MongoMemoryStorage implements IStorage {
       const id = this.generateId();
       const category: CategoryType = { ...cat, _id: id };
       this.categories.set(id, category);
+    });
+  }
+
+  private initializeSampleData() {
+    // Get category IDs for sample transactions
+    const categories = Array.from(this.categories.values());
+    const foodCategory = categories.find(c => c.name === "Food & Dining");
+    const transportCategory = categories.find(c => c.name === "Transportation");
+    const incomeCategory = categories.find(c => c.name === "Income");
+    const housingCategory = categories.find(c => c.name === "Housing");
+    const entertainmentCategory = categories.find(c => c.name === "Entertainment");
+
+    if (!foodCategory || !transportCategory || !incomeCategory || !housingCategory || !entertainmentCategory) return;
+
+    // Sample transactions for the current month and previous months
+    const sampleTransactions = [
+      // Current month income
+      {
+        description: "Salary",
+        amount: 4500,
+        categoryId: incomeCategory._id,
+        date: new Date(2025, 6, 1), // July 1, 2025
+        type: "income" as const,
+      },
+      {
+        description: "Freelance Project",
+        amount: 800,
+        categoryId: incomeCategory._id,
+        date: new Date(2025, 6, 15), // July 15, 2025
+        type: "income" as const,
+      },
+      
+      // Current month expenses
+      {
+        description: "Rent",
+        amount: 1200,
+        categoryId: housingCategory._id,
+        date: new Date(2025, 6, 1), // July 1, 2025
+        type: "expense" as const,
+      },
+      {
+        description: "Grocery Shopping",
+        amount: 85.50,
+        categoryId: foodCategory._id,
+        date: new Date(2025, 6, 3), // July 3, 2025
+        type: "expense" as const,
+      },
+      {
+        description: "Gas Station",
+        amount: 45.20,
+        categoryId: transportCategory._id,
+        date: new Date(2025, 6, 4), // July 4, 2025
+        type: "expense" as const,
+      },
+      {
+        description: "Restaurant Dinner",
+        amount: 67.80,
+        categoryId: foodCategory._id,
+        date: new Date(2025, 6, 5), // July 5, 2025
+        type: "expense" as const,
+      },
+      {
+        description: "Movie Theater",
+        amount: 24.50,
+        categoryId: entertainmentCategory._id,
+        date: new Date(2025, 6, 6), // July 6, 2025
+        type: "expense" as const,
+      },
+
+      // Previous month (June) expenses for trend data
+      {
+        description: "June Rent",
+        amount: 1200,
+        categoryId: housingCategory._id,
+        date: new Date(2025, 5, 1), // June 1, 2025
+        type: "expense" as const,
+      },
+      {
+        description: "June Groceries",
+        amount: 320.75,
+        categoryId: foodCategory._id,
+        date: new Date(2025, 5, 15), // June 15, 2025
+        type: "expense" as const,
+      },
+      {
+        description: "Gas & Transport",
+        amount: 180.40,
+        categoryId: transportCategory._id,
+        date: new Date(2025, 5, 20), // June 20, 2025
+        type: "expense" as const,
+      },
+
+      // May expenses for trend data
+      {
+        description: "May Rent",
+        amount: 1200,
+        categoryId: housingCategory._id,
+        date: new Date(2025, 4, 1), // May 1, 2025
+        type: "expense" as const,
+      },
+      {
+        description: "May Food & Dining",
+        amount: 275.60,
+        categoryId: foodCategory._id,
+        date: new Date(2025, 4, 10), // May 10, 2025
+        type: "expense" as const,
+      },
+    ];
+
+    // Create sample transactions
+    sampleTransactions.forEach(transaction => {
+      const id = this.generateId();
+      const transactionRecord: TransactionType = {
+        ...transaction,
+        _id: id,
+      };
+      this.transactions.set(id, transactionRecord);
+    });
+
+    // Create sample budgets
+    const sampleBudgets = [
+      {
+        categoryId: foodCategory._id,
+        amount: 400,
+        month: 7, // July
+        year: 2025,
+      },
+      {
+        categoryId: transportCategory._id,
+        amount: 200,
+        month: 7, // July
+        year: 2025,
+      },
+      {
+        categoryId: entertainmentCategory._id,
+        amount: 150,
+        month: 7, // July
+        year: 2025,
+      },
+    ];
+
+    sampleBudgets.forEach(budget => {
+      const id = this.generateId();
+      const budgetRecord: BudgetType = {
+        ...budget,
+        _id: id,
+      };
+      this.budgets.set(id, budgetRecord);
     });
   }
 
