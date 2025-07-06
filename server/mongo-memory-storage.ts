@@ -86,100 +86,552 @@ export class MongoMemoryStorage implements IStorage {
     const incomeCategory = categories.find(c => c.name === "Income");
     const housingCategory = categories.find(c => c.name === "Housing");
     const entertainmentCategory = categories.find(c => c.name === "Entertainment");
+    const shoppingCategory = categories.find(c => c.name === "Shopping");
+    const healthcareCategory = categories.find(c => c.name === "Healthcare");
+    const otherCategory = categories.find(c => c.name === "Other");
 
-    if (!foodCategory || !transportCategory || !incomeCategory || !housingCategory || !entertainmentCategory) return;
+    if (!foodCategory || !transportCategory || !incomeCategory || !housingCategory || !entertainmentCategory || !shoppingCategory || !healthcareCategory || !otherCategory) return;
 
-    // Sample transactions for the current month and previous months
+    // Comprehensive sample transactions across 6 months
     const sampleTransactions = [
-      // Current month income
+      // JULY 2025 (Current month)
+      // Income
       {
-        description: "Salary",
-        amount: 4500,
+        description: "Monthly Salary",
+        amount: 5200,
         categoryId: incomeCategory._id,
-        date: new Date(2025, 6, 1), // July 1, 2025
+        date: new Date(2025, 6, 1),
         type: "income" as const,
       },
       {
-        description: "Freelance Project",
-        amount: 800,
-        categoryId: incomeCategory._id,
-        date: new Date(2025, 6, 15), // July 15, 2025
-        type: "income" as const,
-      },
-      
-      // Current month expenses
-      {
-        description: "Rent",
+        description: "Freelance Web Design",
         amount: 1200,
+        categoryId: incomeCategory._id,
+        date: new Date(2025, 6, 15),
+        type: "income" as const,
+      },
+      {
+        description: "Investment Dividend",
+        amount: 285,
+        categoryId: incomeCategory._id,
+        date: new Date(2025, 6, 20),
+        type: "income" as const,
+      },
+
+      // July Expenses
+      {
+        description: "Monthly Rent",
+        amount: 1800,
         categoryId: housingCategory._id,
-        date: new Date(2025, 6, 1), // July 1, 2025
+        date: new Date(2025, 6, 1),
         type: "expense" as const,
       },
       {
-        description: "Grocery Shopping",
-        amount: 85.50,
+        description: "Electricity Bill",
+        amount: 145,
+        categoryId: housingCategory._id,
+        date: new Date(2025, 6, 3),
+        type: "expense" as const,
+      },
+      {
+        description: "Internet Bill",
+        amount: 75,
+        categoryId: housingCategory._id,
+        date: new Date(2025, 6, 5),
+        type: "expense" as const,
+      },
+      {
+        description: "Whole Foods Groceries",
+        amount: 125.50,
         categoryId: foodCategory._id,
-        date: new Date(2025, 6, 3), // July 3, 2025
+        date: new Date(2025, 6, 2),
+        type: "expense" as const,
+      },
+      {
+        description: "Trader Joe's",
+        amount: 85.20,
+        categoryId: foodCategory._id,
+        date: new Date(2025, 6, 6),
+        type: "expense" as const,
+      },
+      {
+        description: "Coffee Shop",
+        amount: 15.75,
+        categoryId: foodCategory._id,
+        date: new Date(2025, 6, 4),
+        type: "expense" as const,
+      },
+      {
+        description: "Sushi Restaurant",
+        amount: 89.50,
+        categoryId: foodCategory._id,
+        date: new Date(2025, 6, 7),
         type: "expense" as const,
       },
       {
         description: "Gas Station",
-        amount: 45.20,
+        amount: 52.30,
         categoryId: transportCategory._id,
-        date: new Date(2025, 6, 4), // July 4, 2025
+        date: new Date(2025, 6, 3),
         type: "expense" as const,
       },
       {
-        description: "Restaurant Dinner",
-        amount: 67.80,
+        description: "Uber Rides",
+        amount: 28.50,
+        categoryId: transportCategory._id,
+        date: new Date(2025, 6, 6),
+        type: "expense" as const,
+      },
+      {
+        description: "Amazon Prime",
+        amount: 14.99,
+        categoryId: shoppingCategory._id,
+        date: new Date(2025, 6, 1),
+        type: "expense" as const,
+      },
+      {
+        description: "Clothing Store",
+        amount: 156.80,
+        categoryId: shoppingCategory._id,
+        date: new Date(2025, 6, 8),
+        type: "expense" as const,
+      },
+      {
+        description: "Netflix Subscription",
+        amount: 15.99,
+        categoryId: entertainmentCategory._id,
+        date: new Date(2025, 6, 2),
+        type: "expense" as const,
+      },
+      {
+        description: "Concert Tickets",
+        amount: 120.00,
+        categoryId: entertainmentCategory._id,
+        date: new Date(2025, 6, 10),
+        type: "expense" as const,
+      },
+      {
+        description: "Pharmacy",
+        amount: 45.25,
+        categoryId: healthcareCategory._id,
+        date: new Date(2025, 6, 5),
+        type: "expense" as const,
+      },
+
+      // JUNE 2025
+      // Income
+      {
+        description: "Monthly Salary",
+        amount: 5200,
+        categoryId: incomeCategory._id,
+        date: new Date(2025, 5, 1),
+        type: "income" as const,
+      },
+      {
+        description: "Side Project",
+        amount: 800,
+        categoryId: incomeCategory._id,
+        date: new Date(2025, 5, 20),
+        type: "income" as const,
+      },
+
+      // June Expenses
+      {
+        description: "Monthly Rent",
+        amount: 1800,
+        categoryId: housingCategory._id,
+        date: new Date(2025, 5, 1),
+        type: "expense" as const,
+      },
+      {
+        description: "Electricity Bill",
+        amount: 132,
+        categoryId: housingCategory._id,
+        date: new Date(2025, 5, 3),
+        type: "expense" as const,
+      },
+      {
+        description: "Internet Bill",
+        amount: 75,
+        categoryId: housingCategory._id,
+        date: new Date(2025, 5, 5),
+        type: "expense" as const,
+      },
+      {
+        description: "Costco Groceries",
+        amount: 245.80,
         categoryId: foodCategory._id,
-        date: new Date(2025, 6, 5), // July 5, 2025
+        date: new Date(2025, 5, 4),
+        type: "expense" as const,
+      },
+      {
+        description: "Local Restaurant",
+        amount: 65.40,
+        categoryId: foodCategory._id,
+        date: new Date(2025, 5, 12),
+        type: "expense" as const,
+      },
+      {
+        description: "Starbucks",
+        amount: 22.50,
+        categoryId: foodCategory._id,
+        date: new Date(2025, 5, 15),
+        type: "expense" as const,
+      },
+      {
+        description: "Gas Station",
+        amount: 48.90,
+        categoryId: transportCategory._id,
+        date: new Date(2025, 5, 8),
+        type: "expense" as const,
+      },
+      {
+        description: "Car Maintenance",
+        amount: 185.00,
+        categoryId: transportCategory._id,
+        date: new Date(2025, 5, 20),
+        type: "expense" as const,
+      },
+      {
+        description: "Home Depot",
+        amount: 89.50,
+        categoryId: shoppingCategory._id,
+        date: new Date(2025, 5, 10),
         type: "expense" as const,
       },
       {
         description: "Movie Theater",
-        amount: 24.50,
+        amount: 35.00,
         categoryId: entertainmentCategory._id,
-        date: new Date(2025, 6, 6), // July 6, 2025
+        date: new Date(2025, 5, 18),
+        type: "expense" as const,
+      },
+      {
+        description: "Gym Membership",
+        amount: 45.00,
+        categoryId: healthcareCategory._id,
+        date: new Date(2025, 5, 1),
         type: "expense" as const,
       },
 
-      // Previous month (June) expenses for trend data
+      // MAY 2025
+      // Income
       {
-        description: "June Rent",
-        amount: 1200,
+        description: "Monthly Salary",
+        amount: 5200,
+        categoryId: incomeCategory._id,
+        date: new Date(2025, 4, 1),
+        type: "income" as const,
+      },
+      {
+        description: "Tax Refund",
+        amount: 1850,
+        categoryId: incomeCategory._id,
+        date: new Date(2025, 4, 15),
+        type: "income" as const,
+      },
+
+      // May Expenses
+      {
+        description: "Monthly Rent",
+        amount: 1800,
         categoryId: housingCategory._id,
-        date: new Date(2025, 5, 1), // June 1, 2025
+        date: new Date(2025, 4, 1),
         type: "expense" as const,
       },
       {
-        description: "June Groceries",
-        amount: 320.75,
+        description: "Electricity Bill",
+        amount: 125,
+        categoryId: housingCategory._id,
+        date: new Date(2025, 4, 3),
+        type: "expense" as const,
+      },
+      {
+        description: "Internet Bill",
+        amount: 75,
+        categoryId: housingCategory._id,
+        date: new Date(2025, 4, 5),
+        type: "expense" as const,
+      },
+      {
+        description: "Grocery Shopping",
+        amount: 195.30,
         categoryId: foodCategory._id,
-        date: new Date(2025, 5, 15), // June 15, 2025
+        date: new Date(2025, 4, 6),
         type: "expense" as const,
       },
       {
-        description: "Gas & Transport",
-        amount: 180.40,
+        description: "Weekend Dining",
+        amount: 78.20,
+        categoryId: foodCategory._id,
+        date: new Date(2025, 4, 14),
+        type: "expense" as const,
+      },
+      {
+        description: "Gas Station",
+        amount: 55.80,
         categoryId: transportCategory._id,
-        date: new Date(2025, 5, 20), // June 20, 2025
+        date: new Date(2025, 4, 10),
+        type: "expense" as const,
+      },
+      {
+        description: "Electronics Store",
+        amount: 320.00,
+        categoryId: shoppingCategory._id,
+        date: new Date(2025, 4, 20),
+        type: "expense" as const,
+      },
+      {
+        description: "Spotify Premium",
+        amount: 9.99,
+        categoryId: entertainmentCategory._id,
+        date: new Date(2025, 4, 1),
+        type: "expense" as const,
+      },
+      {
+        description: "Doctor Visit",
+        amount: 150.00,
+        categoryId: healthcareCategory._id,
+        date: new Date(2025, 4, 25),
         type: "expense" as const,
       },
 
-      // May expenses for trend data
+      // APRIL 2025
+      // Income
       {
-        description: "May Rent",
-        amount: 1200,
+        description: "Monthly Salary",
+        amount: 5200,
+        categoryId: incomeCategory._id,
+        date: new Date(2025, 3, 1),
+        type: "income" as const,
+      },
+
+      // April Expenses
+      {
+        description: "Monthly Rent",
+        amount: 1800,
         categoryId: housingCategory._id,
-        date: new Date(2025, 4, 1), // May 1, 2025
+        date: new Date(2025, 3, 1),
         type: "expense" as const,
       },
       {
-        description: "May Food & Dining",
-        amount: 275.60,
+        description: "Electricity Bill",
+        amount: 110,
+        categoryId: housingCategory._id,
+        date: new Date(2025, 3, 3),
+        type: "expense" as const,
+      },
+      {
+        description: "Internet Bill",
+        amount: 75,
+        categoryId: housingCategory._id,
+        date: new Date(2025, 3, 5),
+        type: "expense" as const,
+      },
+      {
+        description: "Grocery Shopping",
+        amount: 180.50,
         categoryId: foodCategory._id,
-        date: new Date(2025, 4, 10), // May 10, 2025
+        date: new Date(2025, 3, 8),
+        type: "expense" as const,
+      },
+      {
+        description: "Restaurant Week",
+        amount: 95.75,
+        categoryId: foodCategory._id,
+        date: new Date(2025, 3, 18),
+        type: "expense" as const,
+      },
+      {
+        description: "Gas Station",
+        amount: 62.40,
+        categoryId: transportCategory._id,
+        date: new Date(2025, 3, 12),
+        type: "expense" as const,
+      },
+      {
+        description: "Spring Clothes",
+        amount: 225.00,
+        categoryId: shoppingCategory._id,
+        date: new Date(2025, 3, 22),
+        type: "expense" as const,
+      },
+      {
+        description: "Gaming Subscription",
+        amount: 14.99,
+        categoryId: entertainmentCategory._id,
+        date: new Date(2025, 3, 1),
+        type: "expense" as const,
+      },
+      {
+        description: "Dental Cleaning",
+        amount: 125.00,
+        categoryId: healthcareCategory._id,
+        date: new Date(2025, 3, 28),
+        type: "expense" as const,
+      },
+
+      // MARCH 2025
+      // Income
+      {
+        description: "Monthly Salary",
+        amount: 5200,
+        categoryId: incomeCategory._id,
+        date: new Date(2025, 2, 1),
+        type: "income" as const,
+      },
+      {
+        description: "Bonus",
+        amount: 2500,
+        categoryId: incomeCategory._id,
+        date: new Date(2025, 2, 15),
+        type: "income" as const,
+      },
+
+      // March Expenses
+      {
+        description: "Monthly Rent",
+        amount: 1800,
+        categoryId: housingCategory._id,
+        date: new Date(2025, 2, 1),
+        type: "expense" as const,
+      },
+      {
+        description: "Electricity Bill",
+        amount: 95,
+        categoryId: housingCategory._id,
+        date: new Date(2025, 2, 3),
+        type: "expense" as const,
+      },
+      {
+        description: "Internet Bill",
+        amount: 75,
+        categoryId: housingCategory._id,
+        date: new Date(2025, 2, 5),
+        type: "expense" as const,
+      },
+      {
+        description: "Grocery Shopping",
+        amount: 165.75,
+        categoryId: foodCategory._id,
+        date: new Date(2025, 2, 10),
+        type: "expense" as const,
+      },
+      {
+        description: "Birthday Dinner",
+        amount: 120.00,
+        categoryId: foodCategory._id,
+        date: new Date(2025, 2, 25),
+        type: "expense" as const,
+      },
+      {
+        description: "Gas Station",
+        amount: 58.90,
+        categoryId: transportCategory._id,
+        date: new Date(2025, 2, 15),
+        type: "expense" as const,
+      },
+      {
+        description: "Online Shopping",
+        amount: 175.50,
+        categoryId: shoppingCategory._id,
+        date: new Date(2025, 2, 20),
+        type: "expense" as const,
+      },
+      {
+        description: "Theater Show",
+        amount: 85.00,
+        categoryId: entertainmentCategory._id,
+        date: new Date(2025, 2, 12),
+        type: "expense" as const,
+      },
+      {
+        description: "Prescription",
+        amount: 35.50,
+        categoryId: healthcareCategory._id,
+        date: new Date(2025, 2, 18),
+        type: "expense" as const,
+      },
+
+      // FEBRUARY 2025
+      // Income
+      {
+        description: "Monthly Salary",
+        amount: 5200,
+        categoryId: incomeCategory._id,
+        date: new Date(2025, 1, 1),
+        type: "income" as const,
+      },
+
+      // February Expenses
+      {
+        description: "Monthly Rent",
+        amount: 1800,
+        categoryId: housingCategory._id,
+        date: new Date(2025, 1, 1),
+        type: "expense" as const,
+      },
+      {
+        description: "Electricity Bill",
+        amount: 140,
+        categoryId: housingCategory._id,
+        date: new Date(2025, 1, 3),
+        type: "expense" as const,
+      },
+      {
+        description: "Internet Bill",
+        amount: 75,
+        categoryId: housingCategory._id,
+        date: new Date(2025, 1, 5),
+        type: "expense" as const,
+      },
+      {
+        description: "Grocery Shopping",
+        amount: 210.25,
+        categoryId: foodCategory._id,
+        date: new Date(2025, 1, 12),
+        type: "expense" as const,
+      },
+      {
+        description: "Valentine's Dinner",
+        amount: 145.00,
+        categoryId: foodCategory._id,
+        date: new Date(2025, 1, 14),
+        type: "expense" as const,
+      },
+      {
+        description: "Gas Station",
+        amount: 48.60,
+        categoryId: transportCategory._id,
+        date: new Date(2025, 1, 18),
+        type: "expense" as const,
+      },
+      {
+        description: "Winter Coat",
+        amount: 285.00,
+        categoryId: shoppingCategory._id,
+        date: new Date(2025, 1, 8),
+        type: "expense" as const,
+      },
+      {
+        description: "Streaming Services",
+        amount: 35.97,
+        categoryId: entertainmentCategory._id,
+        date: new Date(2025, 1, 1),
+        type: "expense" as const,
+      },
+      {
+        description: "Gym Membership",
+        amount: 45.00,
+        categoryId: healthcareCategory._id,
+        date: new Date(2025, 1, 1),
+        type: "expense" as const,
+      },
+      {
+        description: "Phone Bill",
+        amount: 85.00,
+        categoryId: otherCategory._id,
+        date: new Date(2025, 1, 15),
         type: "expense" as const,
       },
     ];
@@ -194,24 +646,48 @@ export class MongoMemoryStorage implements IStorage {
       this.transactions.set(id, transactionRecord);
     });
 
-    // Create sample budgets
+    // Create comprehensive budgets for current month (July 2025)
     const sampleBudgets = [
       {
         categoryId: foodCategory._id,
-        amount: 400,
-        month: 7, // July
+        amount: 500,
+        month: 7,
         year: 2025,
       },
       {
         categoryId: transportCategory._id,
-        amount: 200,
-        month: 7, // July
+        amount: 300,
+        month: 7,
         year: 2025,
       },
       {
         categoryId: entertainmentCategory._id,
+        amount: 200,
+        month: 7,
+        year: 2025,
+      },
+      {
+        categoryId: shoppingCategory._id,
+        amount: 250,
+        month: 7,
+        year: 2025,
+      },
+      {
+        categoryId: healthcareCategory._id,
         amount: 150,
-        month: 7, // July
+        month: 7,
+        year: 2025,
+      },
+      {
+        categoryId: housingCategory._id,
+        amount: 2100,
+        month: 7,
+        year: 2025,
+      },
+      {
+        categoryId: otherCategory._id,
+        amount: 100,
+        month: 7,
         year: 2025,
       },
     ];

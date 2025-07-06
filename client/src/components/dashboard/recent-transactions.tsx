@@ -17,7 +17,7 @@ export function RecentTransactions() {
   });
 
   const deleteTransactionMutation = useMutation({
-    mutationFn: (id: number) => apiRequest("DELETE", `/api/transactions/${id}`),
+    mutationFn: (id: string) => apiRequest("DELETE", `/api/transactions/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/transactions"] });
       queryClient.invalidateQueries({ queryKey: ["/api/analytics/summary"] });
@@ -37,7 +37,7 @@ export function RecentTransactions() {
     },
   });
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     if (confirm("Are you sure you want to delete this transaction?")) {
       deleteTransactionMutation.mutate(id);
     }
@@ -88,7 +88,7 @@ export function RecentTransactions() {
     );
   }
 
-  const recentTransactions = transactions?.slice(0, 5) || [];
+  const recentTransactions = Array.isArray(transactions) ? transactions.slice(0, 5) : [];
 
   return (
     <>
@@ -126,7 +126,7 @@ export function RecentTransactions() {
                 </thead>
                 <tbody className="bg-white divide-y divide-slate-200">
                   {recentTransactions.map((transaction) => (
-                    <tr key={transaction.id} className="hover:bg-slate-50">
+                    <tr key={transaction._id} className="hover:bg-slate-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
@@ -167,7 +167,7 @@ export function RecentTransactions() {
                           variant="ghost"
                           size="sm"
                           className="text-slate-400 hover:text-red-600"
-                          onClick={() => handleDelete(transaction.id)}
+                          onClick={() => handleDelete(transaction._id)}
                           disabled={deleteTransactionMutation.isPending}
                         >
                           <i className="fas fa-trash"></i>
