@@ -57,6 +57,12 @@ export function BudgetOverview() {
       }))
     : sampleBudgets;
 
+  // Debug logging
+  console.log('Budgets data:', budgets);
+  console.log('Category expenses:', categoryExpenses);
+  console.log('Expense map:', expenseMap);
+  console.log('Final budget data:', budgetData);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

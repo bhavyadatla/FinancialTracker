@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { Progress } from "@/components/ui/progress";
+import { formatCurrency } from "@/lib/currency";
 
 export function BudgetOverview() {
   const { data: budgets, isLoading: budgetsLoading } = useQuery({
@@ -47,7 +48,13 @@ export function BudgetOverview() {
     { category: { name: "Shopping", color: "#ef4444" }, amount: "300", spent: expenseMap.get("Shopping") || 350 },
   ];
 
-  const budgetData = budgets && budgets.length > 0 ? budgets : sampleBudgets;
+  // Map budget data with actual spending
+  const budgetData = budgets && budgets.length > 0 
+    ? budgets.map((budget: any) => ({
+        ...budget,
+        spent: expenseMap.get(budget.category?.name) || 0
+      }))
+    : sampleBudgets;
 
   return (
     <Card className="bg-white rounded-xl border border-slate-200 shadow-sm">
@@ -57,9 +64,9 @@ export function BudgetOverview() {
       </CardHeader>
       <CardContent className="space-y-6">
         {budgetData.map((budget: any, index: number) => {
-          const budgetAmount = parseFloat(budget.amount);
+          const budgetAmount = typeof budget.amount === 'number' ? budget.amount : parseFloat(budget.amount || '0');
           const spentAmount = budget.spent || 0;
-          const percentage = Math.min((spentAmount / budgetAmount) * 100, 100);
+          const percentage = budgetAmount > 0 ? Math.min((spentAmount / budgetAmount) * 100, 100) : 0;
           const isOverBudget = spentAmount > budgetAmount;
 
           return (
@@ -76,10 +83,10 @@ export function BudgetOverview() {
                 </div>
                 <div className="text-right">
                   <div className={`text-sm font-medium ${isOverBudget ? 'text-red-600' : 'text-slate-800'}`}>
-                    ${spentAmount.toFixed(0)}
+                    {formatCurrency(spentAmount)}
                   </div>
                   <div className="text-xs text-slate-500">
-                    of ${budgetAmount.toFixed(0)}
+                    of {formatCurrency(budgetAmount)}
                   </div>
                 </div>
               </div>

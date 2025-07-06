@@ -31,6 +31,10 @@ export function MonthlyExpensesChart() {
     amount: typeof item.amount === 'number' ? Math.round(item.amount) : 0
   })) : [];
 
+  // Debug logging
+  console.log('Monthly data:', monthlyData);
+  console.log('Chart data:', chartData);
+
   const barColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316', '#84cc16'];
 
   if (isLoading) {

@@ -13,6 +13,12 @@ export function MonthlyExpensesChart() {
     queryFn: () => fetch(`/api/analytics/monthly-expenses?months=${months}`).then(res => res.json()),
   });
 
+  // Clean and ensure data is properly formatted
+  const chartData = monthlyData ? monthlyData.map((item: any) => ({
+    month: item.month,
+    amount: typeof item.amount === 'number' ? Math.round(item.amount) : 0
+  })) : [];
+
   if (isLoading) {
     return (
       <Card className="bg-white rounded-xl border border-slate-200 shadow-sm">
@@ -44,9 +50,9 @@ export function MonthlyExpensesChart() {
       </CardHeader>
       <CardContent>
         <div className="h-64">
-          {monthlyData && monthlyData.length > 0 ? (
+          {chartData && chartData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthlyData}>
+              <BarChart data={chartData}>
                 <defs>
                   <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.8}/>

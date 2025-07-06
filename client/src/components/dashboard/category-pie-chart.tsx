@@ -3,6 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { formatCurrency } from "@/lib/currency";
 
 export function CategoryPieChart() {
   const [period, setPeriod] = useState("this-month");
@@ -10,6 +11,9 @@ export function CategoryPieChart() {
   const { data: categoryData, isLoading } = useQuery({
     queryKey: ["/api/analytics/category-expenses"],
   });
+
+  // Calculate total amount for display
+  const totalAmount = categoryData ? categoryData.reduce((sum: number, item: any) => sum + item.amount, 0) : 0;
 
   if (isLoading) {
     return (
@@ -51,7 +55,12 @@ export function CategoryPieChart() {
     <Card className="bg-white rounded-xl border border-slate-200 shadow-sm">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold text-slate-800">Expenses by Category</CardTitle>
+          <div>
+            <CardTitle className="text-lg font-semibold text-slate-800">Expenses by Category</CardTitle>
+            <p className="text-sm text-slate-600 mt-1">
+              Total: {formatCurrency(totalAmount)}
+            </p>
+          </div>
           <Select value={period} onValueChange={setPeriod}>
             <SelectTrigger className="w-auto text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
               <SelectValue />
