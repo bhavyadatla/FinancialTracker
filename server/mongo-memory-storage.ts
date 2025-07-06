@@ -681,46 +681,41 @@ export class MongoMemoryStorage implements IStorage {
     });
 
     // Create comprehensive budgets for current month (July 2025)
+    // Amounts are set to be realistic compared to actual spending patterns
     const sampleBudgets = [
       {
         categoryId: foodCategory._id,
-        amount: 500,
+        amount: 2000,  // ₹2,000 budget vs ₹1,840 actual spending
         month: 7,
         year: 2025,
       },
       {
         categoryId: transportCategory._id,
-        amount: 300,
+        amount: 600,   // ₹600 budget vs ₹540 actual spending
         month: 7,
         year: 2025,
       },
       {
         categoryId: entertainmentCategory._id,
-        amount: 200,
+        amount: 400,   // ₹400 budget vs ₹317 actual spending
         month: 7,
         year: 2025,
       },
       {
         categoryId: shoppingCategory._id,
-        amount: 250,
+        amount: 1500,  // ₹1,500 budget vs ₹1,352 actual spending
         month: 7,
         year: 2025,
       },
       {
         categoryId: healthcareCategory._id,
-        amount: 150,
+        amount: 500,   // ₹500 budget vs ₹264 actual spending
         month: 7,
         year: 2025,
       },
       {
         categoryId: housingCategory._id,
-        amount: 2100,
-        month: 7,
-        year: 2025,
-      },
-      {
-        categoryId: shoppingCategory._id,
-        amount: 100,
+        amount: 12000, // ₹12,000 budget vs ₹11,997 actual spending
         month: 7,
         year: 2025,
       },
