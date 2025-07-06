@@ -1,30 +1,7 @@
-import express, { type Request, Response, NextFunction } from "express";
+import express, { NextFunction, type Request, Response } from "express";
+import { connectToMongoDB } from "./mongodb";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
-import mongoose from "mongoose";
-
-// Connect to MongoDB
-async function connectMongoDB() {
-  try {
-    const mongoUri = process.env.MONGODB_URI;
-    if (!mongoUri) {
-      console.warn("MONGODB_URI not found, using in-memory storage");
-      return false;
-    }
-    
-    // Set connection timeout to prevent hanging
-    await mongoose.connect(mongoUri, {
-      serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds
-      connectTimeoutMS: 5000,
-    });
-    console.log("Connected to MongoDB successfully");
-    return true;
-  } catch (error) {
-    console.error("MongoDB connection error:", error);
-    console.log("Falling back to in-memory storage");
-    return false;
-  }
-}
+import { log, serveStatic, setupVite } from "./vite";
 
 const app = express();
 app.use(express.json());
@@ -62,8 +39,8 @@ app.use((req, res, next) => {
 
 (async () => {
   // Connect to MongoDB first
-  await connectMongoDB();
-  
+  await connectToMongoDB();
+
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -87,11 +64,13 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
-  });
+  server.listen(
+    {
+      port,
+      host: "0.0.0.0",
+    },
+    () => {
+      log(`serving on port ${port}`);
+    }
+  );
 })();
