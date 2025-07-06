@@ -1,4 +1,6 @@
 import { categories, transactions, budgets, type Category, type Transaction, type Budget, type InsertCategory, type InsertTransaction, type InsertBudget, type TransactionWithCategory, type BudgetWithCategory } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
   // Categories
@@ -31,215 +33,250 @@ export interface IStorage {
   }>;
 }
 
-export class MemStorage implements IStorage {
-  private categories: Map<number, Category>;
-  private transactions: Map<number, Transaction>;
-  private budgets: Map<number, Budget>;
-  private currentCategoryId: number;
-  private currentTransactionId: number;
-  private currentBudgetId: number;
-
+export class DatabaseStorage implements IStorage {
   constructor() {
-    this.categories = new Map();
-    this.transactions = new Map();
-    this.budgets = new Map();
-    this.currentCategoryId = 1;
-    this.currentTransactionId = 1;
-    this.currentBudgetId = 1;
-
-    // Initialize with default categories
     this.initializeDefaultCategories();
   }
 
-  private initializeDefaultCategories() {
-    const defaultCategories: InsertCategory[] = [
-      { name: "Food & Dining", color: "#f97316", icon: "fas fa-utensils" },
-      { name: "Transportation", color: "#eab308", icon: "fas fa-car" },
-      { name: "Housing", color: "#8b5cf6", icon: "fas fa-home" },
-      { name: "Entertainment", color: "#3b82f6", icon: "fas fa-gamepad" },
-      { name: "Shopping", color: "#ef4444", icon: "fas fa-shopping-bag" },
-      { name: "Income", color: "#059669", icon: "fas fa-money-bill" },
-      { name: "Healthcare", color: "#06b6d4", icon: "fas fa-heartbeat" },
-      { name: "Other", color: "#64748b", icon: "fas fa-ellipsis-h" },
-    ];
+  private async initializeDefaultCategories() {
+    try {
+      const existingCategories = await db.select().from(categories);
+      
+      if (existingCategories.length === 0) {
+        const defaultCategories: InsertCategory[] = [
+          { name: "Food & Dining", color: "#f97316", icon: "fas fa-utensils" },
+          { name: "Transportation", color: "#eab308", icon: "fas fa-car" },
+          { name: "Housing", color: "#8b5cf6", icon: "fas fa-home" },
+          { name: "Entertainment", color: "#3b82f6", icon: "fas fa-gamepad" },
+          { name: "Shopping", color: "#ef4444", icon: "fas fa-shopping-bag" },
+          { name: "Income", color: "#059669", icon: "fas fa-money-bill" },
+          { name: "Healthcare", color: "#06b6d4", icon: "fas fa-heartbeat" },
+          { name: "Other", color: "#64748b", icon: "fas fa-ellipsis-h" },
+        ];
 
-    defaultCategories.forEach(category => {
-      const id = this.currentCategoryId++;
-      this.categories.set(id, { ...category, id });
-    });
+        await db.insert(categories).values(defaultCategories);
+      }
+    } catch (error) {
+      console.error("Error initializing default categories:", error);
+    }
   }
 
   // Categories
   async getCategories(): Promise<Category[]> {
-    return Array.from(this.categories.values());
+    return await db.select().from(categories);
   }
 
   async getCategoryById(id: number): Promise<Category | undefined> {
-    return this.categories.get(id);
+    const [category] = await db.select().from(categories).where(eq(categories.id, id));
+    return category || undefined;
   }
 
   async createCategory(insertCategory: InsertCategory): Promise<Category> {
-    const id = this.currentCategoryId++;
-    const category: Category = { ...insertCategory, id };
-    this.categories.set(id, category);
+    const [category] = await db.insert(categories).values(insertCategory).returning();
     return category;
   }
 
   // Transactions
   async getTransactions(): Promise<TransactionWithCategory[]> {
-    const transactions = Array.from(this.transactions.values());
-    return transactions.map(transaction => {
-      const category = this.categories.get(transaction.categoryId);
-      return {
-        ...transaction,
-        category: category!,
-      };
-    }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return await db
+      .select({
+        id: transactions.id,
+        description: transactions.description,
+        amount: transactions.amount,
+        categoryId: transactions.categoryId,
+        date: transactions.date,
+        type: transactions.type,
+        category: {
+          id: categories.id,
+          name: categories.name,
+          color: categories.color,
+          icon: categories.icon,
+        },
+      })
+      .from(transactions)
+      .leftJoin(categories, eq(transactions.categoryId, categories.id))
+      .orderBy(desc(transactions.date));
   }
 
   async getTransactionById(id: number): Promise<TransactionWithCategory | undefined> {
-    const transaction = this.transactions.get(id);
-    if (!transaction) return undefined;
+    const [transaction] = await db
+      .select({
+        id: transactions.id,
+        description: transactions.description,
+        amount: transactions.amount,
+        categoryId: transactions.categoryId,
+        date: transactions.date,
+        type: transactions.type,
+        category: {
+          id: categories.id,
+          name: categories.name,
+          color: categories.color,
+          icon: categories.icon,
+        },
+      })
+      .from(transactions)
+      .leftJoin(categories, eq(transactions.categoryId, categories.id))
+      .where(eq(transactions.id, id));
     
-    const category = this.categories.get(transaction.categoryId);
-    return {
-      ...transaction,
-      category: category!,
-    };
+    return transaction || undefined;
   }
 
   async createTransaction(insertTransaction: InsertTransaction): Promise<Transaction> {
-    const id = this.currentTransactionId++;
-    const transaction: Transaction = {
+    // Convert string date to Date object and amount to string for decimal
+    const transactionData = {
       ...insertTransaction,
-      id,
-      amount: insertTransaction.amount.toString(),
       date: new Date(insertTransaction.date),
+      amount: insertTransaction.amount.toString(),
     };
-    this.transactions.set(id, transaction);
+    
+    const [transaction] = await db.insert(transactions).values(transactionData).returning();
     return transaction;
   }
 
   async updateTransaction(id: number, updates: Partial<InsertTransaction>): Promise<Transaction | undefined> {
-    const transaction = this.transactions.get(id);
-    if (!transaction) return undefined;
-
-    const updatedTransaction: Transaction = {
-      ...transaction,
-      ...updates,
-      amount: updates.amount ? updates.amount.toString() : transaction.amount,
-      date: updates.date ? new Date(updates.date) : transaction.date,
-    };
-    this.transactions.set(id, updatedTransaction);
-    return updatedTransaction;
+    const updateData: any = { ...updates };
+    
+    if (updateData.date) {
+      updateData.date = new Date(updateData.date);
+    }
+    if (updateData.amount) {
+      updateData.amount = updateData.amount.toString();
+    }
+    
+    const [transaction] = await db
+      .update(transactions)
+      .set(updateData)
+      .where(eq(transactions.id, id))
+      .returning();
+    
+    return transaction || undefined;
   }
 
   async deleteTransaction(id: number): Promise<boolean> {
-    return this.transactions.delete(id);
+    const result = await db.delete(transactions).where(eq(transactions.id, id));
+    return result.rowCount > 0;
   }
 
   // Budgets
   async getBudgets(): Promise<BudgetWithCategory[]> {
-    const budgets = Array.from(this.budgets.values());
-    return budgets.map(budget => {
-      const category = this.categories.get(budget.categoryId);
-      return {
-        ...budget,
-        category: category!,
-      };
-    });
+    return await db
+      .select({
+        id: budgets.id,
+        categoryId: budgets.categoryId,
+        amount: budgets.amount,
+        month: budgets.month,
+        year: budgets.year,
+        category: {
+          id: categories.id,
+          name: categories.name,
+          color: categories.color,
+          icon: categories.icon,
+        },
+      })
+      .from(budgets)
+      .leftJoin(categories, eq(budgets.categoryId, categories.id));
   }
 
   async getBudgetById(id: number): Promise<BudgetWithCategory | undefined> {
-    const budget = this.budgets.get(id);
-    if (!budget) return undefined;
+    const [budget] = await db
+      .select({
+        id: budgets.id,
+        categoryId: budgets.categoryId,
+        amount: budgets.amount,
+        month: budgets.month,
+        year: budgets.year,
+        category: {
+          id: categories.id,
+          name: categories.name,
+          color: categories.color,
+          icon: categories.icon,
+        },
+      })
+      .from(budgets)
+      .leftJoin(categories, eq(budgets.categoryId, categories.id))
+      .where(eq(budgets.id, id));
     
-    const category = this.categories.get(budget.categoryId);
-    return {
-      ...budget,
-      category: category!,
-    };
+    return budget || undefined;
   }
 
   async createBudget(insertBudget: InsertBudget): Promise<Budget> {
-    const id = this.currentBudgetId++;
-    const budget: Budget = {
+    const budgetData = {
       ...insertBudget,
-      id,
       amount: insertBudget.amount.toString(),
     };
-    this.budgets.set(id, budget);
+    
+    const [budget] = await db.insert(budgets).values(budgetData).returning();
     return budget;
   }
 
   async updateBudget(id: number, updates: Partial<InsertBudget>): Promise<Budget | undefined> {
-    const budget = this.budgets.get(id);
-    if (!budget) return undefined;
-
-    const updatedBudget: Budget = {
-      ...budget,
-      ...updates,
-      amount: updates.amount ? updates.amount.toString() : budget.amount,
-    };
-    this.budgets.set(id, updatedBudget);
-    return updatedBudget;
+    const updateData: any = { ...updates };
+    
+    if (updateData.amount) {
+      updateData.amount = updateData.amount.toString();
+    }
+    
+    const [budget] = await db
+      .update(budgets)
+      .set(updateData)
+      .where(eq(budgets.id, id))
+      .returning();
+    
+    return budget || undefined;
   }
 
   async deleteBudget(id: number): Promise<boolean> {
-    return this.budgets.delete(id);
+    const result = await db.delete(budgets).where(eq(budgets.id, id));
+    return result.rowCount > 0;
   }
 
   // Analytics
   async getMonthlyExpenses(months: number): Promise<{ month: string; amount: number }[]> {
-    const transactions = Array.from(this.transactions.values())
-      .filter(t => t.type === 'expense');
-
-    const monthlyData: { [key: string]: number } = {};
-    const now = new Date();
-
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const result = [];
+    const currentDate = new Date();
+    
     for (let i = months - 1; i >= 0; i--) {
-      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthKey = date.toISOString().slice(0, 7); // YYYY-MM format
-      monthlyData[monthKey] = 0;
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+      const nextDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - i + 1, 1);
+      
+      const expenses = await db
+        .select({
+          total: sql<string>`COALESCE(SUM(CAST(${transactions.amount} AS DECIMAL)), 0)`,
+        })
+        .from(transactions)
+        .where(
+          sql`${transactions.type} = 'expense' AND ${transactions.date} >= ${date} AND ${transactions.date} < ${nextDate}`
+        );
+      
+      result.push({
+        month: monthNames[date.getMonth()],
+        amount: parseFloat(expenses[0]?.total || "0"),
+      });
     }
-
-    transactions.forEach(transaction => {
-      const monthKey = new Date(transaction.date).toISOString().slice(0, 7);
-      if (monthlyData.hasOwnProperty(monthKey)) {
-        monthlyData[monthKey] += parseFloat(transaction.amount);
-      }
-    });
-
-    return Object.entries(monthlyData).map(([month, amount]) => ({
-      month: new Date(month + '-01').toLocaleDateString('en-US', { month: 'short' }),
-      amount,
-    }));
+    
+    return result;
   }
 
   async getCategoryExpenses(): Promise<{ category: string; amount: number; color: string }[]> {
-    const transactions = Array.from(this.transactions.values())
-      .filter(t => t.type === 'expense');
-
-    const categoryData: { [key: number]: number } = {};
-
-    transactions.forEach(transaction => {
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
-      const transactionDate = new Date(transaction.date);
-      
-      if (transactionDate.getMonth() === currentMonth && transactionDate.getFullYear() === currentYear) {
-        categoryData[transaction.categoryId] = (categoryData[transaction.categoryId] || 0) + parseFloat(transaction.amount);
-      }
-    });
-
-    return Object.entries(categoryData).map(([categoryId, amount]) => {
-      const category = this.categories.get(parseInt(categoryId));
-      return {
-        category: category?.name || 'Unknown',
-        amount,
-        color: category?.color || '#64748b',
-      };
-    });
+    const categoryExpenses = await db
+      .select({
+        categoryName: categories.name,
+        categoryColor: categories.color,
+        total: sql<string>`COALESCE(SUM(CAST(${transactions.amount} AS DECIMAL)), 0)`,
+      })
+      .from(transactions)
+      .leftJoin(categories, eq(transactions.categoryId, categories.id))
+      .where(eq(transactions.type, "expense"))
+      .groupBy(categories.id, categories.name, categories.color);
+    
+    return categoryExpenses
+      .filter(expense => parseFloat(expense.total) > 0)
+      .map(expense => ({
+        category: expense.categoryName || "Unknown",
+        amount: parseFloat(expense.total),
+        color: expense.categoryColor || "#64748b",
+      }));
   }
 
   async getSummaryStats(): Promise<{
@@ -248,32 +285,53 @@ export class MemStorage implements IStorage {
     monthlyExpenses: number;
     savingsRate: number;
   }> {
-    const transactions = Array.from(this.transactions.values());
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-
-    let totalIncome = 0;
-    let totalExpenses = 0;
-    let monthlyIncome = 0;
-    let monthlyExpenses = 0;
-
-    transactions.forEach(transaction => {
-      const amount = parseFloat(transaction.amount);
-      const transactionDate = new Date(transaction.date);
-      const isCurrentMonth = transactionDate.getMonth() === currentMonth && transactionDate.getFullYear() === currentYear;
-
-      if (transaction.type === 'income') {
-        totalIncome += amount;
-        if (isCurrentMonth) monthlyIncome += amount;
-      } else {
-        totalExpenses += amount;
-        if (isCurrentMonth) monthlyExpenses += amount;
-      }
-    });
-
+    const currentDate = new Date();
+    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const firstDayOfNextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+    
+    // Get total balance (all income - all expenses)
+    const totalIncomeResult = await db
+      .select({
+        total: sql<string>`COALESCE(SUM(CAST(${transactions.amount} AS DECIMAL)), 0)`,
+      })
+      .from(transactions)
+      .where(eq(transactions.type, "income"));
+    
+    const totalExpensesResult = await db
+      .select({
+        total: sql<string>`COALESCE(SUM(CAST(${transactions.amount} AS DECIMAL)), 0)`,
+      })
+      .from(transactions)
+      .where(eq(transactions.type, "expense"));
+    
+    // Get monthly income
+    const monthlyIncomeResult = await db
+      .select({
+        total: sql<string>`COALESCE(SUM(CAST(${transactions.amount} AS DECIMAL)), 0)`,
+      })
+      .from(transactions)
+      .where(
+        sql`${transactions.type} = 'income' AND ${transactions.date} >= ${firstDayOfMonth} AND ${transactions.date} < ${firstDayOfNextMonth}`
+      );
+    
+    // Get monthly expenses
+    const monthlyExpensesResult = await db
+      .select({
+        total: sql<string>`COALESCE(SUM(CAST(${transactions.amount} AS DECIMAL)), 0)`,
+      })
+      .from(transactions)
+      .where(
+        sql`${transactions.type} = 'expense' AND ${transactions.date} >= ${firstDayOfMonth} AND ${transactions.date} < ${firstDayOfNextMonth}`
+      );
+    
+    const totalIncome = parseFloat(totalIncomeResult[0]?.total || "0");
+    const totalExpenses = parseFloat(totalExpensesResult[0]?.total || "0");
+    const monthlyIncome = parseFloat(monthlyIncomeResult[0]?.total || "0");
+    const monthlyExpenses = parseFloat(monthlyExpensesResult[0]?.total || "0");
+    
     const totalBalance = totalIncome - totalExpenses;
     const savingsRate = monthlyIncome > 0 ? ((monthlyIncome - monthlyExpenses) / monthlyIncome) * 100 : 0;
-
+    
     return {
       totalBalance,
       monthlyIncome,
@@ -283,4 +341,4 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

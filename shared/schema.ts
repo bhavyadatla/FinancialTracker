@@ -1,5 +1,6 @@
 import { pgTable, text, serial, integer, boolean, decimal, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
+import { relations } from "drizzle-orm";
 import { z } from "zod";
 
 export const categories = pgTable("categories", {
@@ -60,3 +61,23 @@ export type TransactionWithCategory = Transaction & {
 export type BudgetWithCategory = Budget & {
   category: Category;
 };
+
+// Relations
+export const categoriesRelations = relations(categories, ({ many }) => ({
+  transactions: many(transactions),
+  budgets: many(budgets),
+}));
+
+export const transactionsRelations = relations(transactions, ({ one }) => ({
+  category: one(categories, {
+    fields: [transactions.categoryId],
+    references: [categories.id],
+  }),
+}));
+
+export const budgetsRelations = relations(budgets, ({ one }) => ({
+  category: one(categories, {
+    fields: [budgets.categoryId],
+    references: [categories.id],
+  }),
+}));
