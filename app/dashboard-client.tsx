@@ -12,6 +12,8 @@ import { BudgetOverview } from '@/components/dashboard/budget-overview';
 import { SpendingTrends } from '@/components/dashboard/spending-trends';
 import { SpendingForecast } from '@/components/dashboard/spending-forecast';
 import { BudgetPerformance } from '@/components/dashboard/budget-performance';
+import { SpendingInsights } from '@/components/analytics/spending-insights';
+import { FinancialGoals } from '@/components/dashboard/financial-goals';
 
 export function DashboardClient() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -34,6 +36,14 @@ export function DashboardClient() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <MonthlyExpensesChart />
             <CategoryPieChart />
+          </div>
+
+          {/* Financial Goals and Insights Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <FinancialGoals />
+            </div>
+            <SpendingInsights />
           </div>
 
           <SpendingTrends />

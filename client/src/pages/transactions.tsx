@@ -6,9 +6,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { EditTransactionModal } from "@/components/transactions/edit-transaction-modal";
 import { AddTransactionModal } from "@/components/transactions/add-transaction-modal";
+// Temporary removal of new components while building
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { TransactionWithCategory } from "@shared/schema";
+import type { TransactionWithCategory } from "@shared/mongodb-types";
 
 export default function Transactions() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -19,11 +20,11 @@ export default function Transactions() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: transactions, isLoading: transactionsLoading } = useQuery({
+  const { data: transactions = [], isLoading: transactionsLoading } = useQuery({
     queryKey: ["/api/transactions"],
   });
 
-  const { data: categories } = useQuery({
+  const { data: categories = [] } = useQuery({
     queryKey: ["/api/categories"],
   });
 
@@ -55,13 +56,12 @@ export default function Transactions() {
   };
 
   // Filter transactions based on search and filters
-  const filteredTransactions = transactions?.filter((transaction) => {
-    const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !categoryFilter || transaction.categoryId.toString() === categoryFilter;
+  const filteredTransactions = transactions.filter((transaction: any) => {
+    const matchesSearch = transaction.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = !categoryFilter || transaction.categoryId === categoryFilter;
     const matchesType = !typeFilter || transaction.type === typeFilter;
-    
     return matchesSearch && matchesCategory && matchesType;
-  }) || [];
+  });
 
   const getCategoryIcon = (categoryName: string) => {
     const iconMap: { [key: string]: string } = {
@@ -141,14 +141,14 @@ export default function Transactions() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">All categories</SelectItem>
-                  {categories?.map((category) => (
+                  {categories.map((category: any) => (
                     <SelectItem key={category._id} value={category._id}>
                       {category.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-
+              
               <Select value={typeFilter} onValueChange={setTypeFilter}>
                 <SelectTrigger className="sm:w-32">
                   <SelectValue placeholder="Filter by type" />
