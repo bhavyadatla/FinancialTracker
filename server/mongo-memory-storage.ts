@@ -115,14 +115,16 @@ export class MongoMemoryStorage implements IStorage {
     const categories = Array.from(this.categories.values());
     const foodCategory = categories.find(c => c.name === "Food & Dining");
     const transportCategory = categories.find(c => c.name === "Transportation");
-    const incomeCategory = categories.find(c => c.name === "Income");
+    const salaryCategory = categories.find(c => c.name === "Salary");
+    const businessCategory = categories.find(c => c.name === "Business");
+    const investmentCategory = categories.find(c => c.name === "Investment");
     const housingCategory = categories.find(c => c.name === "Housing");
     const entertainmentCategory = categories.find(c => c.name === "Entertainment");
     const shoppingCategory = categories.find(c => c.name === "Shopping");
     const healthcareCategory = categories.find(c => c.name === "Healthcare");
-    const otherCategory = categories.find(c => c.name === "Other");
+    const giftCategory = categories.find(c => c.name === "Gift");
 
-    if (!foodCategory || !transportCategory || !incomeCategory || !housingCategory || !entertainmentCategory || !shoppingCategory || !healthcareCategory || !otherCategory) return;
+    if (!foodCategory || !transportCategory || !salaryCategory || !housingCategory || !entertainmentCategory || !shoppingCategory || !healthcareCategory) return;
 
     // Comprehensive sample transactions across 6 months
     const sampleTransactions = [
@@ -131,21 +133,21 @@ export class MongoMemoryStorage implements IStorage {
       {
         description: "Monthly Salary",
         amount: 5200,
-        categoryId: incomeCategory._id,
+        categoryId: salaryCategory._id,
         date: new Date(2025, 6, 1),
         type: "income" as const,
       },
       {
         description: "Freelance Web Design",
         amount: 1200,
-        categoryId: incomeCategory._id,
+        categoryId: salaryCategory._id,
         date: new Date(2025, 6, 15),
         type: "income" as const,
       },
       {
         description: "Investment Dividend",
         amount: 285,
-        categoryId: incomeCategory._id,
+        categoryId: salaryCategory._id,
         date: new Date(2025, 6, 20),
         type: "income" as const,
       },
@@ -255,14 +257,14 @@ export class MongoMemoryStorage implements IStorage {
       {
         description: "Monthly Salary",
         amount: 5200,
-        categoryId: incomeCategory._id,
+        categoryId: salaryCategory._id,
         date: new Date(2025, 5, 1),
         type: "income" as const,
       },
       {
         description: "Side Project",
         amount: 800,
-        categoryId: incomeCategory._id,
+        categoryId: salaryCategory._id,
         date: new Date(2025, 5, 20),
         type: "income" as const,
       },
@@ -351,14 +353,14 @@ export class MongoMemoryStorage implements IStorage {
       {
         description: "Monthly Salary",
         amount: 5200,
-        categoryId: incomeCategory._id,
+        categoryId: salaryCategory._id,
         date: new Date(2025, 4, 1),
         type: "income" as const,
       },
       {
         description: "Tax Refund",
         amount: 1850,
-        categoryId: incomeCategory._id,
+        categoryId: salaryCategory._id,
         date: new Date(2025, 4, 15),
         type: "income" as const,
       },
@@ -433,7 +435,7 @@ export class MongoMemoryStorage implements IStorage {
       {
         description: "Monthly Salary",
         amount: 5200,
-        categoryId: incomeCategory._id,
+        categoryId: salaryCategory._id,
         date: new Date(2025, 3, 1),
         type: "income" as const,
       },
@@ -508,14 +510,14 @@ export class MongoMemoryStorage implements IStorage {
       {
         description: "Monthly Salary",
         amount: 5200,
-        categoryId: incomeCategory._id,
+        categoryId: salaryCategory._id,
         date: new Date(2025, 2, 1),
         type: "income" as const,
       },
       {
         description: "Bonus",
         amount: 2500,
-        categoryId: incomeCategory._id,
+        categoryId: salaryCategory._id,
         date: new Date(2025, 2, 15),
         type: "income" as const,
       },
@@ -590,7 +592,7 @@ export class MongoMemoryStorage implements IStorage {
       {
         description: "Monthly Salary",
         amount: 5200,
-        categoryId: incomeCategory._id,
+        categoryId: salaryCategory._id,
         date: new Date(2025, 1, 1),
         type: "income" as const,
       },
@@ -662,7 +664,7 @@ export class MongoMemoryStorage implements IStorage {
       {
         description: "Phone Bill",
         amount: 85.00,
-        categoryId: otherCategory._id,
+        categoryId: shoppingCategory._id,
         date: new Date(2025, 1, 15),
         type: "expense" as const,
       },
@@ -717,7 +719,7 @@ export class MongoMemoryStorage implements IStorage {
         year: 2025,
       },
       {
-        categoryId: otherCategory._id,
+        categoryId: shoppingCategory._id,
         amount: 100,
         month: 7,
         year: 2025,
