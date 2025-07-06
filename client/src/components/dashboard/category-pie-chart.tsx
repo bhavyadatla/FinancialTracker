@@ -9,7 +9,14 @@ export function CategoryPieChart() {
   const [period, setPeriod] = useState("this-month");
 
   const { data: categoryData, isLoading } = useQuery({
-    queryKey: ["/api/analytics/category-expenses"],
+    queryKey: ["/api/analytics/category-expenses", period],
+    queryFn: () => {
+      const params = new URLSearchParams();
+      if (period && period !== "all") {
+        params.append("filter", period);
+      }
+      return fetch(`/api/analytics/category-expenses?${params}`).then(res => res.json());
+    }
   });
 
   // Calculate total amount for display

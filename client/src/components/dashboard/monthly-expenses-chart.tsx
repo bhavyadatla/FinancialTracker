@@ -1,16 +1,22 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from "recharts";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { TimeFilter, type TimeFilterType, getDateRangeFromFilter } from "@/components/analytics/time-filter";
 
 export function MonthlyExpensesChart() {
-  const [months, setMonths] = useState("6");
+  const [period, setPeriod] = useState("last-6-months");
 
   const { data: monthlyData, isLoading } = useQuery({
-    queryKey: ["/api/analytics/monthly-expenses", months],
-    queryFn: () => fetch(`/api/analytics/monthly-expenses?months=${months}`).then(res => res.json()),
+    queryKey: ["/api/analytics/monthly-expenses", period],
+    queryFn: () => {
+      const params = new URLSearchParams();
+      if (period && period !== "all") {
+        params.append("filter", period);
+      }
+      return fetch(`/api/analytics/monthly-expenses?${params}`).then(res => res.json());
+    }
   });
 
   // Clean and ensure data is properly formatted
@@ -37,13 +43,17 @@ export function MonthlyExpensesChart() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-semibold text-slate-800">Monthly Expenses</CardTitle>
-          <Select value={months} onValueChange={setMonths}>
+          <Select value={period} onValueChange={setPeriod}>
             <SelectTrigger className="w-auto text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="6">Last 6 months</SelectItem>
-              <SelectItem value="12">Last 12 months</SelectItem>
+              <SelectItem value="last-1-day">Last 1 Day</SelectItem>
+              <SelectItem value="this-month">This Month</SelectItem>
+              <SelectItem value="last-month">Last Month</SelectItem>
+              <SelectItem value="last-3-months">Last 3 Months</SelectItem>
+              <SelectItem value="last-6-months">Last 6 Months</SelectItem>
+              <SelectItem value="this-year">This Year</SelectItem>
             </SelectContent>
           </Select>
         </div>

@@ -178,7 +178,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Analytics
   app.get("/api/analytics/monthly-expenses", async (req, res) => {
     try {
-      const months = parseInt(req.query.months as string) || 6;
+      const filter = req.query.filter as string;
+      let months = parseInt(req.query.months as string) || 6;
+      
+      // Override months based on filter
+      if (filter) {
+        switch (filter) {
+          case 'last-1-day':
+            months = 1;
+            break;
+          case 'this-month':
+          case 'last-month':
+            months = 1;
+            break;
+          case 'last-3-months':
+            months = 3;
+            break;
+          case 'last-6-months':
+            months = 6;
+            break;
+          case 'this-year':
+            months = 12;
+            break;
+        }
+      }
+      
       const data = await storage.getMonthlyExpenses(months);
       res.json(data);
     } catch (error) {
@@ -186,9 +210,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/analytics/category-expenses", async (_req, res) => {
+  app.get("/api/analytics/category-expenses", async (req, res) => {
     try {
-      const data = await storage.getCategoryExpenses();
+      const filter = req.query.filter as string;
+      let startDate: Date | undefined;
+      let endDate: Date | undefined;
+
+      if (filter) {
+        const now = new Date();
+        switch (filter) {
+          case 'this-month':
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            break;
+          case 'last-month':
+            startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+            break;
+          case 'last-3-months':
+            startDate = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+            endDate = now;
+            break;
+          case 'last-6-months':
+            startDate = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+            endDate = now;
+            break;
+          case 'this-year':
+            startDate = new Date(now.getFullYear(), 0, 1);
+            endDate = now;
+            break;
+          case 'last-1-day':
+            startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            endDate = now;
+            break;
+        }
+      }
+
+      const data = await storage.getCategoryExpenses({ startDate, endDate });
       res.json(data);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch category expenses" });

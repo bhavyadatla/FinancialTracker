@@ -905,15 +905,23 @@ export class MongoMemoryStorage implements IStorage {
     return result;
   }
 
-  async getCategoryExpenses(): Promise<{ category: string; amount: number; color: string }[]> {
+  async getCategoryExpenses(filter?: { startDate?: Date; endDate?: Date }): Promise<{ category: string; amount: number; color: string }[]> {
     const expensesByCategory = new Map<string, number>();
 
-    // Group expenses by category
+    // Group expenses by category with date filtering
     Array.from(this.transactions.values())
-      .filter(t => t.type === 'expense')
+      .filter(transaction => {
+        if (transaction.type !== 'expense') return false;
+        
+        // Apply date filter if provided
+        if (filter?.startDate && transaction.date < filter.startDate) return false;
+        if (filter?.endDate && transaction.date > filter.endDate) return false;
+        
+        return true;
+      })
       .forEach(transaction => {
         const current = expensesByCategory.get(transaction.categoryId) || 0;
-        expensesByCategory.set(transaction.categoryId, current + transaction.amount);
+        expensesByCategory.set(transaction.categoryId, current + Math.abs(transaction.amount));
       });
 
     // Map to category details and filter out zero amounts
