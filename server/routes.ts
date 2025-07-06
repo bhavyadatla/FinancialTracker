@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { insertTransactionSchema, insertBudgetSchema } from "@shared/schema";
+import { storage } from "./mongo-memory-storage";
+import { insertTransactionSchema, insertBudgetSchema } from "../shared/mongodb-types";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -27,7 +27,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/transactions/:id", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = req.params.id;
       const transaction = await storage.getTransactionById(id);
       if (!transaction) {
         return res.status(404).json({ message: "Transaction not found" });
@@ -53,7 +53,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/transactions/:id", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = req.params.id;
       const parsed = insertTransactionSchema.partial().parse(req.body);
       const transaction = await storage.updateTransaction(id, parsed);
       if (!transaction) {
@@ -70,7 +70,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/transactions/:id", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = req.params.id;
       const deleted = await storage.deleteTransaction(id);
       if (!deleted) {
         return res.status(404).json({ message: "Transaction not found" });
