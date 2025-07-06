@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -84,6 +84,9 @@ export function EditTransactionModal({ transaction, open, onOpenChange }: EditTr
           <DialogTitle className="text-lg font-semibold text-slate-800">
             Edit Transaction
           </DialogTitle>
+          <DialogDescription className="text-sm text-slate-600">
+            Update the transaction details below.
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>

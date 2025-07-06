@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -79,6 +79,9 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
           <DialogTitle className="text-lg font-semibold text-slate-800">
             Add New Transaction
           </DialogTitle>
+          <DialogDescription className="text-sm text-slate-600">
+            Enter transaction details to track your income or expenses.
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
