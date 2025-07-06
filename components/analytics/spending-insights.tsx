@@ -16,7 +16,12 @@ interface SpendingInsight {
 }
 
 export function SpendingInsights() {
-  const { data: summaryStats } = useQuery({
+  const { data: summaryStats = {
+    totalBalance: 0,
+    monthlyIncome: 0,
+    monthlyExpenses: 0,
+    savingsRate: 0
+  } } = useQuery({
     queryKey: ["/api/analytics/summary"],
   });
 
@@ -31,24 +36,25 @@ export function SpendingInsights() {
   // Calculate insights
   const insights: SpendingInsight[] = [];
 
-  if (summaryStats) {
+  if (summaryStats && (summaryStats as any).savingsRate !== undefined) {
+    const stats = summaryStats as any;
     // Savings Rate Insight
     insights.push({
       title: "Savings Rate",
-      value: `${summaryStats.savingsRate.toFixed(1)}%`,
-      trend: summaryStats.savingsRate > 20 ? 'up' : summaryStats.savingsRate > 10 ? 'neutral' : 'down',
-      trendValue: summaryStats.savingsRate > 20 ? "Excellent" : summaryStats.savingsRate > 10 ? "Good" : "Needs Improvement",
-      description: summaryStats.savingsRate > 20 ? "You're saving more than 20% of your income!" : "Consider reducing expenses to improve savings.",
-      severity: summaryStats.savingsRate > 20 ? 'success' : summaryStats.savingsRate > 10 ? 'info' : 'warning'
+      value: `${stats.savingsRate.toFixed(1)}%`,
+      trend: stats.savingsRate > 20 ? 'up' : stats.savingsRate > 10 ? 'neutral' : 'down',
+      trendValue: stats.savingsRate > 20 ? "Excellent" : stats.savingsRate > 10 ? "Good" : "Needs Improvement",
+      description: stats.savingsRate > 20 ? "You're saving more than 20% of your income!" : "Consider reducing expenses to improve savings.",
+      severity: stats.savingsRate > 20 ? 'success' : stats.savingsRate > 10 ? 'info' : 'warning'
     });
 
     // Monthly Spending vs Income
-    const spendingRatio = summaryStats.monthlyIncome > 0 ? (summaryStats.monthlyExpenses / summaryStats.monthlyIncome) * 100 : 0;
+    const spendingRatio = stats.monthlyIncome > 0 ? (stats.monthlyExpenses / stats.monthlyIncome) * 100 : 0;
     insights.push({
       title: "Spending Ratio",
       value: `${spendingRatio.toFixed(1)}%`,
       trend: spendingRatio < 80 ? 'up' : spendingRatio < 90 ? 'neutral' : 'down',
-      trendValue: `${formatCurrency(summaryStats.monthlyExpenses)} of ${formatCurrency(summaryStats.monthlyIncome)}`,
+      trendValue: `${formatCurrency(stats.monthlyExpenses)} of ${formatCurrency(stats.monthlyIncome)}`,
       description: spendingRatio < 80 ? "Healthy spending habits" : "Consider monitoring expenses more closely",
       severity: spendingRatio < 80 ? 'success' : spendingRatio < 90 ? 'info' : 'warning'
     });

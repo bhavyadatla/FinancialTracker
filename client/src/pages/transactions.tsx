@@ -58,8 +58,8 @@ export default function Transactions() {
   // Filter transactions based on search and filters
   const filteredTransactions = transactions.filter((transaction: any) => {
     const matchesSearch = transaction.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !categoryFilter || transaction.categoryId === categoryFilter;
-    const matchesType = !typeFilter || transaction.type === typeFilter;
+    const matchesCategory = !categoryFilter || categoryFilter === 'all' || transaction.categoryId === categoryFilter;
+    const matchesType = !typeFilter || typeFilter === 'all' || transaction.type === typeFilter;
     return matchesSearch && matchesCategory && matchesType;
   });
 
@@ -140,7 +140,7 @@ export default function Transactions() {
                   <SelectValue placeholder="Filter by category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All categories</SelectItem>
+                  <SelectItem value="all">All categories</SelectItem>
                   {categories.map((category: any) => (
                     <SelectItem key={category._id} value={category._id}>
                       {category.name}
@@ -154,7 +154,7 @@ export default function Transactions() {
                   <SelectValue placeholder="Filter by type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All types</SelectItem>
+                  <SelectItem value="all">All types</SelectItem>
                   <SelectItem value="income">Income</SelectItem>
                   <SelectItem value="expense">Expense</SelectItem>
                 </SelectContent>
