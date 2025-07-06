@@ -119,12 +119,23 @@ export function BudgetOverview() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50">
+      <Card className="bg-white rounded-xl border border-slate-200 shadow-sm">
         <CardHeader className="pb-4">
-          <CardTitle className="text-xl font-semibold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-            Budget Overview
-          </CardTitle>
-          <p className="text-sm text-gray-600">Your spending vs budget for this month</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                Monthly Budget Tracker
+              </CardTitle>
+              <p className="text-sm text-slate-600 mt-1">Track your spending against budget goals</p>
+            </div>
+            <div className="text-right">
+              <div className="text-xs text-slate-500">Current Month</div>
+              <div className="text-sm font-medium text-slate-700">
+                {new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+              </div>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <motion.div 
@@ -149,58 +160,49 @@ export function BudgetOverview() {
                 <motion.div
                   key={index}
                   variants={itemVariants}
-                  className="group"
+                  className="p-4 rounded-lg border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-3">
                       <div 
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-md"
-                        style={{ 
-                          background: `linear-gradient(135deg, ${budget.category?.color || '#6b7280'}, ${budget.category?.color || '#6b7280'}dd)` 
-                        }}
-                      >
-                        <i className={`${budget.category?.icon || 'fas fa-circle'} text-sm`}></i>
-                      </div>
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: budget.category?.color || '#6b7280' }}
+                      />
                       <div>
-                        <h3 className="font-semibold text-gray-800 group-hover:text-gray-900 transition-colors">
-                          {budget.category.name}
+                        <h3 className="font-medium text-slate-800">
+                          {budget.category?.name || 'Unknown Category'}
                         </h3>
-                        <p className="text-xs text-gray-500">
-                          {formatCurrency(spentAmount)} of {formatCurrency(budgetAmount)}
+                        <p className="text-xs text-slate-500">
+                          {formatCurrency(spentAmount)} / {formatCurrency(budgetAmount)}
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className={`text-sm font-semibold ${isOverBudget ? 'text-red-600' : 'text-green-600'}`}>
+                      <div className={`text-sm font-medium ${isOverBudget ? 'text-red-600' : 'text-emerald-600'}`}>
                         {isOverBudget ? '+' : ''}{formatCurrency(Math.abs(remaining))}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-slate-500">
                         {isOverBudget ? 'over budget' : 'remaining'}
                       </div>
                     </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <div className="flex justify-between text-xs text-gray-600">
-                      <span>{percentage.toFixed(1)}% used</span>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-slate-600">{percentage.toFixed(1)}% used</span>
                       {isOverBudget && (
-                        <span className="text-red-500 font-medium flex items-center">
-                          <i className="fas fa-exclamation-triangle mr-1"></i>
+                        <span className="text-red-600 font-medium bg-red-50 px-2 py-1 rounded-full">
                           Over Budget
                         </span>
                       )}
                     </div>
-                    <div className="relative">
-                      <Progress 
-                        value={Math.min(percentage, 100)} 
-                        className="h-3 bg-gray-100"
+                    <div className="w-full bg-slate-200 rounded-full h-2">
+                      <div 
+                        className={`h-2 rounded-full transition-all duration-500 ${
+                          isOverBudget ? 'bg-red-500' : 'bg-emerald-500'
+                        }`}
+                        style={{ width: `${Math.min(percentage, 100)}%` }}
                       />
-                      {isOverBudget && (
-                        <div 
-                          className="absolute top-0 left-0 h-3 bg-red-500 rounded-full opacity-80"
-                          style={{ width: `${Math.min(percentage, 100)}%` }}
-                        ></div>
-                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -208,34 +210,35 @@ export function BudgetOverview() {
             })}
           </motion.div>
           
-          {/* Summary Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.3 }}
-            className="mt-6 pt-6 border-t border-gray-200"
-          >
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg">
-                <div className="text-sm text-gray-600">Total Budget</div>
-                <div className="text-lg font-bold text-green-700">
-                  {formatCurrency(budgetData.reduce((sum: number, budget: any) => {
-                    const amount = typeof budget.amount === 'number' ? budget.amount : parseFloat(budget.amount || '0');
-                    return sum + (isNaN(amount) ? 0 : amount);
-                  }, 0))}
+          {budgetData.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.3 }}
+              className="mt-6 pt-4 border-t border-slate-200"
+            >
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+                  <div className="text-xs text-slate-500">Total Budget</div>
+                  <div className="text-lg font-semibold text-slate-800">
+                    {formatCurrency(budgetData.reduce((sum: number, budget: any) => {
+                      const amount = typeof budget.amount === 'number' ? budget.amount : parseFloat(budget.amount || '0');
+                      return sum + (isNaN(amount) ? 0 : amount);
+                    }, 0))}
+                  </div>
+                </div>
+                <div className="text-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+                  <div className="text-xs text-slate-500">Total Spent</div>
+                  <div className="text-lg font-semibold text-slate-800">
+                    {formatCurrency(budgetData.reduce((sum: number, budget: any) => {
+                      const spent = typeof budget.spent === 'number' ? budget.spent : parseFloat(budget.spent || '0');
+                      return sum + (isNaN(spent) ? 0 : spent);
+                    }, 0))}
+                  </div>
                 </div>
               </div>
-              <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg">
-                <div className="text-sm text-gray-600">Total Spent</div>
-                <div className="text-lg font-bold text-blue-700">
-                  {formatCurrency(budgetData.reduce((sum: number, budget: any) => {
-                    const spent = typeof budget.spent === 'number' ? budget.spent : parseFloat(budget.spent || '0');
-                    return sum + (isNaN(spent) ? 0 : spent);
-                  }, 0))}
-                </div>
-              </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          )}
         </CardContent>
       </Card>
     </motion.div>
