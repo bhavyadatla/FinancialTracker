@@ -32,10 +32,13 @@ export function SummaryCards() {
     );
   }
 
+  const formatCurrency = (amount: number) => 
+    new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+
   const cards = [
     {
       title: "Total Balance",
-      value: `$${summaryStats.totalBalance.toLocaleString()}`,
+      value: formatCurrency(summaryStats.totalBalance),
       icon: "fas fa-wallet",
       iconBg: "bg-green-100",
       iconColor: "text-green-600",
@@ -45,7 +48,7 @@ export function SummaryCards() {
     },
     {
       title: "Monthly Income",
-      value: `$${summaryStats.monthlyIncome.toLocaleString()}`,
+      value: formatCurrency(summaryStats.monthlyIncome),
       icon: "fas fa-arrow-down",
       iconBg: "bg-blue-100",
       iconColor: "text-blue-600",
@@ -55,7 +58,7 @@ export function SummaryCards() {
     },
     {
       title: "Monthly Expenses",
-      value: `$${summaryStats.monthlyExpenses.toLocaleString()}`,
+      value: formatCurrency(summaryStats.monthlyExpenses),
       icon: "fas fa-arrow-up",
       iconBg: "bg-red-100",
       iconColor: "text-red-600",

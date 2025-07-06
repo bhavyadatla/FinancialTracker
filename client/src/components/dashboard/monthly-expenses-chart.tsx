@@ -63,7 +63,7 @@ export function MonthlyExpensesChart() {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12, fill: '#64748b' }}
-                  tickFormatter={(value) => `$${value}`}
+                  tickFormatter={(value) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value)}
                 />
                 <Bar 
                   dataKey="amount" 
