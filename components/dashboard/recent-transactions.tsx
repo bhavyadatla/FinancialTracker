@@ -5,7 +5,9 @@ import { useState } from "react";
 import { EditTransactionModal } from "@/components/transactions/edit-transaction-modal";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { TransactionWithCategory } from "@shared/schema";
+import { formatCurrency, formatCurrencyDetailed } from "@/lib/currency";
+import { motion } from "framer-motion";
+import type { TransactionWithCategory } from "@/shared/mongodb-types";
 
 export function RecentTransactions() {
   const [editingTransaction, setEditingTransaction] = useState<TransactionWithCategory | null>(null);
@@ -92,15 +94,23 @@ export function RecentTransactions() {
 
   return (
     <>
-      <Card className="bg-white rounded-xl border border-slate-200 shadow-sm">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg font-semibold text-slate-800">Recent Transactions</CardTitle>
-            <a href="/transactions" className="text-primary font-medium text-sm hover:text-blue-700">
-              View all
-            </a>
-          </div>
-        </CardHeader>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+      >
+        <Card className="bg-gradient-to-br from-slate-50 to-gray-50 rounded-xl border border-slate-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                <i className="fas fa-history text-slate-600"></i>
+                Recent Transactions
+              </CardTitle>
+              <a href="/transactions" className="text-blue-600 font-medium text-sm hover:text-blue-700 transition-colors duration-200">
+                View all <i className="fas fa-arrow-right ml-1"></i>
+              </a>
+            </div>
+          </CardHeader>
         <CardContent className="p-0">
           {recentTransactions.length > 0 ? (
             <div className="overflow-x-auto">
@@ -151,7 +161,7 @@ export function RecentTransactions() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <span className={transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}>
-                          {transaction.type === 'income' ? '+' : '-'}${parseFloat(transaction.amount).toFixed(2)}
+                          {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
@@ -167,7 +177,7 @@ export function RecentTransactions() {
                           variant="ghost"
                           size="sm"
                           className="text-slate-400 hover:text-red-600"
-                          onClick={() => handleDelete(transaction.id)}
+                          onClick={() => handleDelete(transaction._id)}
                           disabled={deleteTransactionMutation.isPending}
                         >
                           <i className="fas fa-trash"></i>
@@ -180,11 +190,15 @@ export function RecentTransactions() {
             </div>
           ) : (
             <div className="p-6 text-center text-gray-500">
-              No transactions found. Add your first transaction to get started!
+              <div className="flex flex-col items-center">
+                <i className="fas fa-receipt text-4xl text-gray-300 mb-4"></i>
+                <p>No transactions found. Add your first transaction to get started!</p>
+              </div>
             </div>
           )}
         </CardContent>
       </Card>
+      </motion.div>
 
       {editingTransaction && (
         <EditTransactionModal
