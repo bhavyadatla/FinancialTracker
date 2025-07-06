@@ -1,17 +1,14 @@
 {
   "recommendations": [
     "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
     "ms-vscode.vscode-typescript-next",
-    "bradlc.vscode-tailwindcss",
-    "ms-vscode.vscode-eslint",
     "formulahendry.auto-rename-tag",
-    "ms-vscode.vscode-json",
     "christian-kohler.path-intellisense",
-    "ms-vscode.sublime-keybindings",
-    "eamodio.gitlens",
-    "ms-vscode.vscode-typescript-tslint-plugin",
-    "usernamehw.errorlens",
-    "bradlc.vscode-tailwindcss",
-    "ms-playwright.playwright"
+    "ms-vscode.vscode-json",
+    "ms-vscode.vscode-eslint",
+    "dsznajder.es7-react-js-snippets",
+    "formulahendry.auto-close-tag",
+    "ms-vscode.vs-keybindings"
   ]
 }

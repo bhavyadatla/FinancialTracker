@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Node.js Server",
+      "name": "Debug Server",
       "type": "node",
       "request": "launch",
       "program": "${workspaceFolder}/server/index.ts",
@@ -12,23 +12,17 @@
         "NODE_ENV": "development"
       },
       "console": "integratedTerminal",
-      "restart": true,
-      "protocol": "inspector"
+      "restart": true
     },
     {
-      "name": "Debug Full Stack",
+      "name": "Debug Tests",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceFolder}/server/index.ts",
-      "runtimeArgs": ["-r", "tsx/cjs"],
-      "env": {
-        "NODE_ENV": "development"
-      },
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["--runInBand"],
       "console": "integratedTerminal",
-      "serverReadyAction": {
-        "pattern": "serving on port ([0-9]+)",
-        "uriFormat": "http://localhost:%s",
-        "action": "openExternally"
+      "env": {
+        "NODE_ENV": "test"
       }
     }
   ]

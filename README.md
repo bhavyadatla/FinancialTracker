@@ -1,6 +1,6 @@
-# Personal Finance Tracker
+# Financial Dashboard
 
-A comprehensive personal finance tracking application built with React, Express, and MongoDB. Track transactions, manage budgets, analyze spending patterns, and gain insights into your financial health.
+A comprehensive personal finance tracking application built with React, Express, and TypeScript. Track transactions, manage budgets, analyze spending patterns, and gain insights into your financial health with Indian Rupee support.
 
 ## Features
 

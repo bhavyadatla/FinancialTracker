@@ -184,6 +184,10 @@ Changelog:
 - July 06, 2025: Added comprehensive VS Code setup guide and development environment configuration
 - July 06, 2025: Implemented MongoDB-compatible storage with in-memory fallback for local development
 - July 06, 2025: Added professional setup documentation for local development and deployment
+- July 06, 2025: Updated budget amounts to realistic values preventing all categories from showing as over budget
+- July 06, 2025: Created complete setup guide (SETUP_GUIDE.md) with step-by-step VS Code instructions
+- July 06, 2025: Added VS Code workspace configuration with recommended extensions and debugging setup
+- July 06, 2025: Created environment example file (.env.example) for easy project setup
 ```
 
 ## User Preferences
