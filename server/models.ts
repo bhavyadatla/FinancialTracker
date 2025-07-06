@@ -5,12 +5,14 @@ export interface ICategory extends Document {
   name: string;
   color: string;
   icon: string;
+  type: 'income' | 'expense';
 }
 
 const CategorySchema = new Schema<ICategory>({
   name: { type: String, required: true },
   color: { type: String, required: true },
   icon: { type: String, required: true },
+  type: { type: String, enum: ['income', 'expense'], required: true },
 });
 
 // Transaction interface and schema

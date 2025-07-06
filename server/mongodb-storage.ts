@@ -14,6 +14,7 @@ import {
 export interface IStorage {
   // Categories
   getCategories(): Promise<CategoryType[]>;
+  getCategoriesByType(type: 'income' | 'expense'): Promise<CategoryType[]>;
   getCategoryById(id: string): Promise<CategoryType | undefined>;
   createCategory(category: InsertCategory): Promise<CategoryType>;
 
@@ -87,14 +88,15 @@ export class MongoDBStorage implements IStorage {
       
       if (existingCategories === 0) {
         const defaultCategories = [
-          { name: "Food & Dining", color: "#f97316", icon: "fas fa-utensils" },
-          { name: "Transportation", color: "#eab308", icon: "fas fa-car" },
-          { name: "Housing", color: "#8b5cf6", icon: "fas fa-home" },
-          { name: "Entertainment", color: "#3b82f6", icon: "fas fa-gamepad" },
-          { name: "Shopping", color: "#ef4444", icon: "fas fa-shopping-bag" },
-          { name: "Income", color: "#059669", icon: "fas fa-money-bill" },
-          { name: "Healthcare", color: "#06b6d4", icon: "fas fa-heartbeat" },
-          { name: "Other", color: "#64748b", icon: "fas fa-ellipsis-h" },
+          { name: "Food & Dining", color: "#f97316", icon: "fas fa-utensils", type: "expense" },
+          { name: "Transportation", color: "#eab308", icon: "fas fa-car", type: "expense" },
+          { name: "Housing", color: "#8b5cf6", icon: "fas fa-home", type: "expense" },
+          { name: "Entertainment", color: "#3b82f6", icon: "fas fa-gamepad", type: "expense" },
+          { name: "Shopping", color: "#ef4444", icon: "fas fa-shopping-bag", type: "expense" },
+          { name: "Salary", color: "#059669", icon: "fas fa-money-bill", type: "income" },
+          { name: "Freelance", color: "#10b981", icon: "fas fa-laptop", type: "income" },
+          { name: "Healthcare", color: "#06b6d4", icon: "fas fa-heartbeat", type: "expense" },
+          { name: "Other", color: "#64748b", icon: "fas fa-ellipsis-h", type: "expense" },
         ];
 
         await Category.insertMany(defaultCategories);
@@ -215,6 +217,7 @@ export class MongoDBStorage implements IStorage {
       name: doc.name,
       color: doc.color,
       icon: doc.icon,
+      type: doc.type,
     };
   }
 
@@ -242,6 +245,11 @@ export class MongoDBStorage implements IStorage {
   // Categories
   async getCategories(): Promise<CategoryType[]> {
     const categories = await Category.find().lean();
+    return categories.map(this.transformCategory);
+  }
+
+  async getCategoriesByType(type: 'income' | 'expense'): Promise<CategoryType[]> {
+    const categories = await Category.find({ type }).lean();
     return categories.map(this.transformCategory);
   }
 
@@ -640,7 +648,7 @@ export class MongoDBStorage implements IStorage {
     const budgets = await Budget.find({
       month: currentMonth,
       year: currentYear
-    }).populate('categoryId').lean();
+    }).populate('categoryId');
 
     const performance = [];
 
@@ -671,9 +679,10 @@ export class MongoDBStorage implements IStorage {
       const variance = budget.amount - actualAmount;
       const percentageUsed = budget.amount > 0 ? (actualAmount / budget.amount) * 100 : 0;
 
+      const category = budget.categoryId as any;
       performance.push({
-        categoryId: budget.categoryId._id.toString(),
-        categoryName: budget.categoryId.name,
+        categoryId: category._id.toString(),
+        categoryName: category.name,
         budgetAmount: budget.amount,
         actualAmount,
         variance,

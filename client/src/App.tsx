@@ -9,6 +9,9 @@ import { MobileNav } from "@/components/layout/mobile-nav";
 import { useState } from "react";
 import Dashboard from "@/pages/dashboard";
 import Transactions from "@/pages/transactions";
+import Categories from "@/pages/categories";
+import Budget from "@/pages/budget";
+import Reports from "@/pages/reports";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -43,9 +46,7 @@ function Router() {
               subtitle="Organize your transactions by category."
               onMobileMenuClick={() => setMobileNavOpen(true)}
             />
-            <div className="p-4 lg:p-8">
-              <div className="text-center text-gray-500">Categories page coming soon...</div>
-            </div>
+            <Categories />
           </Route>
           <Route path="/budget">
             <Header 
@@ -53,9 +54,7 @@ function Router() {
               subtitle="Set and track your spending budgets."
               onMobileMenuClick={() => setMobileNavOpen(true)}
             />
-            <div className="p-4 lg:p-8">
-              <div className="text-center text-gray-500">Budget page coming soon...</div>
-            </div>
+            <Budget />
           </Route>
           <Route path="/reports">
             <Header 
@@ -63,9 +62,7 @@ function Router() {
               subtitle="Detailed insights into your financial data."
               onMobileMenuClick={() => setMobileNavOpen(true)}
             />
-            <div className="p-4 lg:p-8">
-              <div className="text-center text-gray-500">Reports page coming soon...</div>
-            </div>
+            <Reports />
           </Route>
           <Route component={NotFound} />
         </Switch>
