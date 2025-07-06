@@ -148,7 +148,7 @@ export function EditTransactionModal({ transaction, open, onOpenChange }: EditTr
                           </SelectItem>
                         ))
                       ) : (
-                        <SelectItem value="" disabled>
+                        <SelectItem value="none" disabled>
                           No categories available
                         </SelectItem>
                       )}

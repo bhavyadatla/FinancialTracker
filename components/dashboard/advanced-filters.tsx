@@ -86,7 +86,7 @@ export function AdvancedFilters({ onFilterChange, onExport }: AdvancedFiltersPro
                 <SelectValue placeholder="All categories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All categories</SelectItem>
+                <SelectItem value="all">All categories</SelectItem>
                 {categories?.map((category: any) => (
                   <SelectItem key={category._id} value={category._id}>
                     <div className="flex items-center">
@@ -109,7 +109,7 @@ export function AdvancedFilters({ onFilterChange, onExport }: AdvancedFiltersPro
                 <SelectValue placeholder="All types" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All types</SelectItem>
+                <SelectItem value="all">All types</SelectItem>
                 <SelectItem value="income">Income</SelectItem>
                 <SelectItem value="expense">Expense</SelectItem>
               </SelectContent>

@@ -140,7 +140,7 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
                           </SelectItem>
                         ))
                       ) : (
-                        <SelectItem value="" disabled>
+                        <SelectItem value="none" disabled>
                           No categories available
                         </SelectItem>
                       )}
