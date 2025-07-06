@@ -12,6 +12,7 @@ import {
 export interface IStorage {
   // Categories
   getCategories(): Promise<CategoryType[]>;
+  getCategoriesByType(type: 'income' | 'expense'): Promise<CategoryType[]>;
   getCategoryById(id: string): Promise<CategoryType | undefined>;
   createCategory(category: InsertCategory): Promise<CategoryType>;
 
@@ -85,18 +86,21 @@ export class MongoMemoryStorage implements IStorage {
 
   private initializeDefaultCategories() {
     const defaultCategories = [
-      { name: "Food & Dining", color: "#f97316", icon: "fas fa-utensils" },
-      { name: "Transportation", color: "#eab308", icon: "fas fa-car" },
-      { name: "Housing", color: "#8b5cf6", icon: "fas fa-home" },
-      { name: "Entertainment", color: "#3b82f6", icon: "fas fa-gamepad" },
-      { name: "Shopping", color: "#ef4444", icon: "fas fa-shopping-bag" },
-      { name: "Salary", color: "#059669", icon: "fas fa-money-bill" },
-      { name: "Gift", color: "#10b981", icon: "fas fa-gift" },
-      { name: "Investment", color: "#34d399", icon: "fas fa-chart-line" },
-      { name: "Business", color: "#6ee7b7", icon: "fas fa-briefcase" },
-      { name: "Other Income", color: "#a7f3d0", icon: "fas fa-plus-circle" },
-      { name: "Healthcare", color: "#06b6d4", icon: "fas fa-heartbeat" },
-      { name: "Other", color: "#64748b", icon: "fas fa-ellipsis-h" },
+      // Expense Categories
+      { name: "Food & Dining", color: "#f97316", icon: "fas fa-utensils", type: "expense" as const },
+      { name: "Transportation", color: "#eab308", icon: "fas fa-car", type: "expense" as const },
+      { name: "Housing", color: "#8b5cf6", icon: "fas fa-home", type: "expense" as const },
+      { name: "Entertainment", color: "#3b82f6", icon: "fas fa-gamepad", type: "expense" as const },
+      { name: "Shopping", color: "#ef4444", icon: "fas fa-shopping-bag", type: "expense" as const },
+      { name: "Healthcare", color: "#06b6d4", icon: "fas fa-heartbeat", type: "expense" as const },
+      { name: "Other Expense", color: "#64748b", icon: "fas fa-ellipsis-h", type: "expense" as const },
+      
+      // Income Categories
+      { name: "Salary", color: "#059669", icon: "fas fa-money-bill", type: "income" as const },
+      { name: "Business", color: "#10b981", icon: "fas fa-briefcase", type: "income" as const },
+      { name: "Investment", color: "#34d399", icon: "fas fa-chart-line", type: "income" as const },
+      { name: "Gift", color: "#6ee7b7", icon: "fas fa-gift", type: "income" as const },
+      { name: "Other Income", color: "#a7f3d0", icon: "fas fa-plus-circle", type: "income" as const },
     ];
 
     defaultCategories.forEach(cat => {
@@ -733,6 +737,10 @@ export class MongoMemoryStorage implements IStorage {
   // Categories
   async getCategories(): Promise<CategoryType[]> {
     return Array.from(this.categories.values());
+  }
+
+  async getCategoriesByType(type: 'income' | 'expense'): Promise<CategoryType[]> {
+    return Array.from(this.categories.values()).filter(category => category.type === type);
   }
 
   async getCategoryById(id: string): Promise<CategoryType | undefined> {

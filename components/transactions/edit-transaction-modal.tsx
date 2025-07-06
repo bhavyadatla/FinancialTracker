@@ -9,7 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { insertTransactionSchema, type InsertTransaction, type TransactionWithCategory } from "@shared/schema";
+import { insertTransactionSchema, type InsertTransaction, type TransactionWithCategory, type Category } from "@shared/mongodb-types";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useEffect } from "react";
 
@@ -23,26 +23,29 @@ export function EditTransactionModal({ transaction, open, onOpenChange }: EditTr
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: categories } = useQuery({
-    queryKey: ["/api/categories"],
-  });
-
   const form = useForm<InsertTransaction>({
     resolver: zodResolver(insertTransactionSchema),
     defaultValues: {
       description: "",
       amount: 0,
-      categoryId: 0,
+      categoryId: "",
       date: "",
       type: "expense",
     },
+  });
+
+  const transactionType = form.watch("type");
+
+  const { data: categories = [] } = useQuery<Category[]>({
+    queryKey: ["/api/categories", transactionType],
+    enabled: !!transactionType,
   });
 
   useEffect(() => {
     if (transaction) {
       form.reset({
         description: transaction.description,
-        amount: parseFloat(transaction.amount),
+        amount: transaction.amount,
         categoryId: transaction.categoryId,
         date: new Date(transaction.date).toISOString().split('T')[0],
         type: transaction.type as "income" | "expense",
@@ -52,7 +55,7 @@ export function EditTransactionModal({ transaction, open, onOpenChange }: EditTr
 
   const editTransactionMutation = useMutation({
     mutationFn: (data: InsertTransaction) => 
-      apiRequest("PATCH", `/api/transactions/${transaction.id}`, data),
+      apiRequest("PATCH", `/api/transactions/${transaction._id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/transactions"] });
       queryClient.invalidateQueries({ queryKey: ["/api/analytics/summary"] });
@@ -131,18 +134,24 @@ export function EditTransactionModal({ transaction, open, onOpenChange }: EditTr
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {categories?.map((category) => (
-                        <SelectItem key={category.id} value={category.id.toString()}>
-                          {category.name}
+                      {categories && categories.length > 0 ? (
+                        categories.map((category: Category) => (
+                          <SelectItem key={category._id} value={category._id}>
+                            {category.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="" disabled>
+                          No categories available
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />

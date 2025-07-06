@@ -15,6 +15,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/categories/:type", async (req, res) => {
+    try {
+      const type = req.params.type as 'income' | 'expense';
+      if (type !== 'income' && type !== 'expense') {
+        return res.status(400).json({ message: "Type must be 'income' or 'expense'" });
+      }
+      const categories = await storage.getCategoriesByType(type);
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch categories" });
+    }
+  });
+
   // Transactions
   app.get("/api/transactions", async (_req, res) => {
     try {

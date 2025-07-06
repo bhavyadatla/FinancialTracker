@@ -6,6 +6,7 @@ export interface Category {
   name: string;
   color: string;
   icon: string;
+  type: 'expense' | 'income'; // Add type field to categorize by expense/income
 }
 
 export interface Transaction {
@@ -30,6 +31,7 @@ export const insertCategorySchema = z.object({
   name: z.string().min(1, "Name is required"),
   color: z.string().min(1, "Color is required"),
   icon: z.string().min(1, "Icon is required"),
+  type: z.enum(["expense", "income"], { required_error: "Type is required" }),
 });
 
 export const insertTransactionSchema = z.object({
