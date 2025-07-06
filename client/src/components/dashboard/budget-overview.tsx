@@ -42,11 +42,19 @@ export function BudgetOverview() {
 
   // Map budget data with actual spending from category expenses
   const budgetData = budgets && budgets.length > 0 
-    ? budgets.map((budget: any) => ({
-        ...budget,
-        spent: expenseMap.get(budget.category?.name) || 0
-      }))
+    ? budgets.map((budget: any) => {
+        const categoryName = budget.category?.name;
+        const spentAmount = expenseMap.get(categoryName) || 0;
+        return {
+          ...budget,
+          spent: spentAmount
+        };
+      })
     : [];
+
+  // Calculate totals for the summary
+  const totalBudget = budgetData.reduce((sum, budget) => sum + (typeof budget.amount === 'number' ? budget.amount : parseFloat(budget.amount || '0')), 0);
+  const totalSpent = budgetData.reduce((sum, budget) => sum + (budget.spent || 0), 0);
 
   return (
     <Card className="bg-white rounded-xl border border-slate-200 shadow-sm">
@@ -97,12 +105,25 @@ export function BudgetOverview() {
               />
               {isOverBudget && (
                 <p className="text-xs text-red-600">
-                  Over budget by ${(spentAmount - budgetAmount).toFixed(0)}
+                  Over budget by {formatCurrency(spentAmount - budgetAmount)}
                 </p>
               )}
             </div>
           );
         }))}
+        
+        {budgetData.length > 0 && (
+          <div className="pt-4 border-t border-slate-200">
+            <div className="flex justify-between items-center text-sm">
+              <span className="font-medium text-slate-700">Total Budget</span>
+              <span className="font-medium text-slate-800">{formatCurrency(totalBudget)}</span>
+            </div>
+            <div className="flex justify-between items-center text-sm mt-1">
+              <span className="font-medium text-slate-700">Total Spent</span>
+              <span className="font-medium text-slate-800">{formatCurrency(totalSpent)}</span>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
