@@ -68,6 +68,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Advanced filtering endpoint
+  app.get("/api/transactions/filter", async (req, res) => {
+    try {
+      const { category, type, startDate, endDate, minAmount, maxAmount } = req.query;
+      const transactions = await storage.getTransactionsFiltered({
+        categoryId: category as string,
+        type: type as 'income' | 'expense',
+        startDate: startDate ? new Date(startDate as string) : undefined,
+        endDate: endDate ? new Date(endDate as string) : undefined,
+        minAmount: minAmount ? parseFloat(minAmount as string) : undefined,
+        maxAmount: maxAmount ? parseFloat(maxAmount as string) : undefined,
+      });
+      res.json(transactions);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to filter transactions" });
+    }
+  });
+
   app.delete("/api/transactions/:id", async (req, res) => {
     try {
       const id = req.params.id;
@@ -88,6 +106,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(budgets);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch budgets" });
+    }
+  });
+
+  app.patch("/api/budgets/:id", async (req, res) => {
+    try {
+      const id = req.params.id;
+      const parsed = insertBudgetSchema.partial().parse(req.body);
+      const budget = await storage.updateBudget(id, parsed);
+      if (!budget) {
+        return res.status(404).json({ message: "Budget not found" });
+      }
+      res.json(budget);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid budget data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to update budget" });
+    }
+  });
+
+  app.delete("/api/budgets/:id", async (req, res) => {
+    try {
+      const id = req.params.id;
+      const deleted = await storage.deleteBudget(id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Budget not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete budget" });
     }
   });
 
@@ -130,6 +178,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(data);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch summary stats" });
+    }
+  });
+
+  // Advanced analytics endpoints
+  app.get("/api/analytics/trends", async (req, res) => {
+    try {
+      const months = parseInt(req.query.months as string) || 12;
+      const data = await storage.getSpendingTrends(months);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch spending trends" });
+    }
+  });
+
+  app.get("/api/analytics/forecast", async (req, res) => {
+    try {
+      const months = parseInt(req.query.months as string) || 3;
+      const data = await storage.getSpendingForecast(months);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to generate forecast" });
+    }
+  });
+
+  app.get("/api/analytics/budget-performance", async (_req, res) => {
+    try {
+      const data = await storage.getBudgetPerformance();
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch budget performance" });
+    }
+  });
+
+  // Data export endpoints
+  app.get("/api/export/transactions", async (req, res) => {
+    try {
+      const format = req.query.format as string || 'json';
+      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
+      const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
+      
+      const data = await storage.getTransactionsForExport(startDate, endDate);
+      
+      if (format === 'csv') {
+        const csv = await storage.exportToCSV(data);
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename="transactions.csv"');
+        res.send(csv);
+      } else {
+        res.json(data);
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to export transactions" });
     }
   });
 

@@ -9,6 +9,9 @@ import { MonthlyExpensesChart } from '@/components/dashboard/monthly-expenses-ch
 import { CategoryPieChart } from '@/components/dashboard/category-pie-chart';
 import { RecentTransactions } from '@/components/dashboard/recent-transactions';
 import { BudgetOverview } from '@/components/dashboard/budget-overview';
+import { SpendingTrends } from '@/components/dashboard/spending-trends';
+import { SpendingForecast } from '@/components/dashboard/spending-forecast';
+import { BudgetPerformance } from '@/components/dashboard/budget-performance';
 
 export function DashboardClient() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -31,6 +34,13 @@ export function DashboardClient() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <MonthlyExpensesChart />
             <CategoryPieChart />
+          </div>
+
+          <SpendingTrends />
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <SpendingForecast />
+            <BudgetPerformance />
           </div>
 
           <RecentTransactions />

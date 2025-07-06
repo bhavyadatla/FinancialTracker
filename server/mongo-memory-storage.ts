@@ -22,6 +22,18 @@ export interface IStorage {
   updateTransaction(id: string, transaction: Partial<InsertTransaction>): Promise<TransactionType | undefined>;
   deleteTransaction(id: string): Promise<boolean>;
 
+  // Advanced Transaction Features
+  getTransactionsFiltered(filters: {
+    categoryId?: string;
+    type?: 'income' | 'expense';
+    startDate?: Date;
+    endDate?: Date;
+    minAmount?: number;
+    maxAmount?: number;
+  }): Promise<TransactionWithCategory[]>;
+  getTransactionsForExport(startDate?: Date, endDate?: Date): Promise<TransactionWithCategory[]>;
+  exportToCSV(data: TransactionWithCategory[]): Promise<string>;
+
   // Budgets
   getBudgets(): Promise<BudgetWithCategory[]>;
   getBudgetById(id: string): Promise<BudgetWithCategory | undefined>;
@@ -38,6 +50,18 @@ export interface IStorage {
     monthlyExpenses: number;
     savingsRate: number;
   }>;
+
+  // Advanced Analytics
+  getSpendingTrends(months: number): Promise<{ month: string; income: number; expenses: number; savings: number }[]>;
+  getSpendingForecast(months: number): Promise<{ month: string; predicted: number; confidence: number }[]>;
+  getBudgetPerformance(): Promise<{
+    categoryId: string;
+    categoryName: string;
+    budgetAmount: number;
+    actualAmount: number;
+    variance: number;
+    percentageUsed: number;
+  }[]>;
 }
 
 export class MongoMemoryStorage implements IStorage {
@@ -939,6 +963,189 @@ export class MongoMemoryStorage implements IStorage {
       monthlyExpenses,
       savingsRate,
     };
+  }
+
+  // Advanced Transaction Features
+  async getTransactionsFiltered(filters: {
+    categoryId?: string;
+    type?: 'income' | 'expense';
+    startDate?: Date;
+    endDate?: Date;
+    minAmount?: number;
+    maxAmount?: number;
+  }): Promise<TransactionWithCategory[]> {
+    let transactions = Array.from(this.transactions.values());
+
+    // Apply filters
+    if (filters.categoryId) {
+      transactions = transactions.filter(t => t.categoryId === filters.categoryId);
+    }
+    if (filters.type) {
+      transactions = transactions.filter(t => t.type === filters.type);
+    }
+    if (filters.startDate) {
+      transactions = transactions.filter(t => t.date >= filters.startDate!);
+    }
+    if (filters.endDate) {
+      transactions = transactions.filter(t => t.date <= filters.endDate!);
+    }
+    if (filters.minAmount !== undefined) {
+      transactions = transactions.filter(t => t.amount >= filters.minAmount!);
+    }
+    if (filters.maxAmount !== undefined) {
+      transactions = transactions.filter(t => t.amount <= filters.maxAmount!);
+    }
+
+    // Add category information
+    const transactionsWithCategory: TransactionWithCategory[] = [];
+    for (const transaction of transactions) {
+      const category = this.categories.get(transaction.categoryId);
+      if (category) {
+        transactionsWithCategory.push({
+          ...transaction,
+          category,
+        });
+      }
+    }
+
+    return transactionsWithCategory.sort((a, b) => b.date.getTime() - a.date.getTime());
+  }
+
+  async getTransactionsForExport(startDate?: Date, endDate?: Date): Promise<TransactionWithCategory[]> {
+    const filters: any = {};
+    if (startDate) filters.startDate = startDate;
+    if (endDate) filters.endDate = endDate;
+    return this.getTransactionsFiltered(filters);
+  }
+
+  async exportToCSV(data: TransactionWithCategory[]): Promise<string> {
+    const headers = ['Date', 'Description', 'Amount', 'Type', 'Category'];
+    const csvRows = [headers.join(',')];
+
+    data.forEach(transaction => {
+      const row = [
+        transaction.date.toISOString().split('T')[0],
+        `"${transaction.description}"`,
+        transaction.amount.toString(),
+        transaction.type,
+        `"${transaction.category.name}"`
+      ];
+      csvRows.push(row.join(','));
+    });
+
+    return csvRows.join('\n');
+  }
+
+  // Advanced Analytics
+  async getSpendingTrends(months: number): Promise<{ month: string; income: number; expenses: number; savings: number }[]> {
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const result = [];
+    const currentDate = new Date();
+
+    for (let i = months - 1; i >= 0; i--) {
+      const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+      const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - i + 1, 1);
+
+      const monthlyTransactions = Array.from(this.transactions.values())
+        .filter(t => t.date >= startDate && t.date < endDate);
+
+      const income = monthlyTransactions
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const expenses = monthlyTransactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const savings = income - expenses;
+
+      result.push({
+        month: monthNames[startDate.getMonth()],
+        income,
+        expenses,
+        savings,
+      });
+    }
+
+    return result;
+  }
+
+  async getSpendingForecast(months: number): Promise<{ month: string; predicted: number; confidence: number }[]> {
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    
+    // Get historical data for the last 6 months
+    const historicalData = await this.getSpendingTrends(6);
+    
+    // Simple linear regression for prediction
+    const expenses = historicalData.map(d => d.expenses);
+    const avgExpenses = expenses.reduce((a, b) => a + b, 0) / expenses.length;
+    const trend = expenses.length > 1 ? (expenses[expenses.length - 1] - expenses[0]) / expenses.length : 0;
+    
+    const result = [];
+    const currentDate = new Date();
+    
+    for (let i = 1; i <= months; i++) {
+      const futureDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
+      const predicted = avgExpenses + (trend * i);
+      const confidence = Math.max(0.5, 1 - (i * 0.1)); // Confidence decreases over time
+      
+      result.push({
+        month: monthNames[futureDate.getMonth()],
+        predicted: Math.max(0, predicted),
+        confidence,
+      });
+    }
+
+    return result;
+  }
+
+  async getBudgetPerformance(): Promise<{
+    categoryId: string;
+    categoryName: string;
+    budgetAmount: number;
+    actualAmount: number;
+    variance: number;
+    percentageUsed: number;
+  }[]> {
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth() + 1;
+    const currentYear = currentDate.getFullYear();
+
+    const currentBudgets = Array.from(this.budgets.values())
+      .filter(b => b.month === currentMonth && b.year === currentYear);
+
+    const performance = [];
+
+    for (const budget of currentBudgets) {
+      const category = this.categories.get(budget.categoryId);
+      if (!category) continue;
+
+      const startDate = new Date(currentYear, currentMonth - 1, 1);
+      const endDate = new Date(currentYear, currentMonth, 1);
+
+      const actualAmount = Array.from(this.transactions.values())
+        .filter(t => 
+          t.categoryId === budget.categoryId && 
+          t.type === 'expense' && 
+          t.date >= startDate && 
+          t.date < endDate
+        )
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const variance = budget.amount - actualAmount;
+      const percentageUsed = budget.amount > 0 ? (actualAmount / budget.amount) * 100 : 0;
+
+      performance.push({
+        categoryId: budget.categoryId,
+        categoryName: category.name,
+        budgetAmount: budget.amount,
+        actualAmount,
+        variance,
+        percentageUsed,
+      });
+    }
+
+    return performance;
   }
 }
 
