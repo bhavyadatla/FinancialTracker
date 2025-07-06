@@ -7,27 +7,25 @@ This is a full-stack personal finance tracking application built with modern web
 ## System Architecture
 
 ### Frontend Architecture
-- **Framework**: React 18 with TypeScript
-- **Routing**: Wouter (lightweight client-side routing)
+- **Framework**: Next.js 15 with React 18 and TypeScript
+- **Routing**: Next.js App Router for file-based routing
 - **State Management**: TanStack Query (React Query) for server state management
 - **UI Framework**: shadcn/ui components built on Radix UI primitives
 - **Styling**: Tailwind CSS with CSS variables for theming
 - **Forms**: React Hook Form with Zod validation
 - **Charts**: Recharts for data visualization
-- **Build Tool**: Vite for fast development and optimized builds
+- **Build Tool**: Next.js built-in bundler with Turbopack
 
 ### Backend Architecture
-- **Runtime**: Node.js with Express.js framework
-- **Language**: TypeScript with ES modules
+- **Runtime**: Next.js API Routes with TypeScript
 - **API Design**: RESTful API with JSON responses
-- **Request Handling**: Express middleware for logging, JSON parsing, and error handling
-- **Development**: Hot module replacement via Vite middleware in development mode
+- **Request Handling**: Next.js middleware for API handling
+- **Development**: Next.js development server with hot reload
 
 ### Data Layer
-- **ORM**: Drizzle ORM for type-safe database operations
-- **Database**: PostgreSQL (configured for Neon Database)
-- **Schema Management**: Drizzle Kit for migrations and schema management
-- **Validation**: Zod schemas for runtime type checking and API validation
+- **Storage**: In-memory storage for development (MemStorage)
+- **Database**: MongoDB for production deployment
+- **Schema Management**: Zod schemas for runtime type checking and API validation
 
 ## Key Components
 
