@@ -1,15 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useQuery } from "@tanstack/react-query";
 import { Progress } from "@/components/ui/progress";
 import { formatCurrency } from "@/lib/currency";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 
 export function BudgetOverview() {
-  const { data: budgets, isLoading: budgetsLoading } = useQuery({
+  const { data: budgets, isLoading: budgetsLoading } = useQuery<any[]>({
     queryKey: ["/api/budgets"],
   });
 
-  const { data: categoryExpenses, isLoading: expensesLoading } = useQuery({
+  const { data: categoryExpenses, isLoading: expensesLoading } = useQuery<
+    any[]
+  >({
     queryKey: ["/api/analytics/category-expenses"],
   });
 
@@ -34,7 +36,7 @@ export function BudgetOverview() {
   }
 
   // Create a map of category expenses for quick lookup
-  const expenseMap = new Map();
+  const expenseMap = new Map<string, number>();
   if (categoryExpenses) {
     categoryExpenses.forEach((expense: any) => {
       expenseMap.set(expense.category, expense.amount);
@@ -43,25 +45,42 @@ export function BudgetOverview() {
 
   // If no budgets exist, show sample budget data with INR amounts
   const sampleBudgets = [
-    { category: { name: "Food & Dining", color: "#f97316" }, amount: "15000", spent: expenseMap.get("Food & Dining") || 12500 },
-    { category: { name: "Transportation", color: "#eab308" }, amount: "8000", spent: expenseMap.get("Transportation") || 6200 },
-    { category: { name: "Entertainment", color: "#3b82f6" }, amount: "5000", spent: expenseMap.get("Entertainment") || 3200 },
-    { category: { name: "Shopping", color: "#ef4444" }, amount: "10000", spent: expenseMap.get("Shopping") || 11500 },
+    {
+      category: { name: "Food & Dining", color: "#f97316" },
+      amount: "15000",
+      spent: expenseMap.get("Food & Dining") || 12500,
+    },
+    {
+      category: { name: "Transportation", color: "#eab308" },
+      amount: "8000",
+      spent: expenseMap.get("Transportation") || 6200,
+    },
+    {
+      category: { name: "Entertainment", color: "#3b82f6" },
+      amount: "5000",
+      spent: expenseMap.get("Entertainment") || 3200,
+    },
+    {
+      category: { name: "Shopping", color: "#ef4444" },
+      amount: "10000",
+      spent: expenseMap.get("Shopping") || 11500,
+    },
   ];
 
   // Map budget data with actual spending
-  const budgetData = budgets && budgets.length > 0 
-    ? budgets.map((budget: any) => ({
-        ...budget,
-        spent: expenseMap.get(budget.category?.name) || 0
-      }))
-    : sampleBudgets;
+  const budgetData =
+    budgets && budgets.length > 0
+      ? budgets.map((budget: any) => ({
+          ...budget,
+          spent: expenseMap.get(budget.category?.name) || 0,
+        }))
+      : sampleBudgets;
 
   // Debug logging
-  console.log('Budgets data:', budgets);
-  console.log('Category expenses:', categoryExpenses);
-  console.log('Expense map:', expenseMap);
-  console.log('Final budget data:', budgetData);
+  console.log("Budgets data:", budgets);
+  console.log("Category expenses:", categoryExpenses);
+  console.log("Expense map:", expenseMap);
+  console.log("Final budget data:", budgetData);
 
   return (
     <motion.div
@@ -75,13 +94,21 @@ export function BudgetOverview() {
             <i className="fas fa-bullseye text-orange-600"></i>
             Budget Overview
           </CardTitle>
-          <p className="text-sm text-slate-600 mt-1">Your spending vs budget for this month</p>
+          <p className="text-sm text-slate-600 mt-1">
+            Your spending vs budget for this month
+          </p>
         </CardHeader>
         <CardContent className="space-y-6">
           {budgetData.map((budget: any, index: number) => {
-            const budgetAmount = typeof budget.amount === 'number' ? budget.amount : parseFloat(budget.amount || '0');
+            const budgetAmount =
+              typeof budget.amount === "number"
+                ? budget.amount
+                : parseFloat(budget.amount || "0");
             const spentAmount = budget.spent || 0;
-            const percentage = budgetAmount > 0 ? Math.min((spentAmount / budgetAmount) * 100, 100) : 0;
+            const percentage =
+              budgetAmount > 0
+                ? Math.min((spentAmount / budgetAmount) * 100, 100)
+                : 0;
             const isOverBudget = spentAmount > budgetAmount;
 
             return (
@@ -89,13 +116,13 @@ export function BudgetOverview() {
                 key={index}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.7 + (index * 0.1) }}
+                transition={{ duration: 0.5, delay: 0.7 + index * 0.1 }}
                 className="space-y-3 p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <div 
-                      className="w-4 h-4 rounded-full shadow-sm" 
+                    <div
+                      className="w-4 h-4 rounded-full shadow-sm"
                       style={{ backgroundColor: budget.category.color }}
                     ></div>
                     <span className="text-sm font-medium text-slate-800">
@@ -109,7 +136,11 @@ export function BudgetOverview() {
                     )}
                   </div>
                   <div className="text-right">
-                    <div className={`text-sm font-semibold ${isOverBudget ? 'text-red-600' : 'text-slate-800'}`}>
+                    <div
+                      className={`text-sm font-semibold ${
+                        isOverBudget ? "text-red-600" : "text-slate-800"
+                      }`}
+                    >
                       {formatCurrency(spentAmount)}
                     </div>
                     <div className="text-xs text-slate-500">
@@ -117,22 +148,23 @@ export function BudgetOverview() {
                     </div>
                   </div>
                 </div>
-                <Progress 
-                  value={percentage} 
+                <Progress
+                  value={percentage}
                   className="w-full h-3"
-                style={{ 
-                  backgroundColor: '#e2e8f0',
-                }}
-              />
-              {isOverBudget && (
-                <p className="text-xs text-red-600">
-                  Over budget by {formatCurrency(spentAmount - budgetAmount)}
-                </p>
-              )}
-            </div>
-          );
-        })}
-      </CardContent>
-    </Card>
+                  style={{
+                    backgroundColor: "#e2e8f0",
+                  }}
+                />
+                {isOverBudget && (
+                  <p className="text-xs text-red-600">
+                    Over budget by {formatCurrency(spentAmount - budgetAmount)}
+                  </p>
+                )}
+              </motion.div>
+            );
+          })}
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
