@@ -49,7 +49,13 @@ export function BudgetOverview() {
     { category: { name: "Shopping", color: "#ef4444" }, amount: "10000", spent: expenseMap.get("Shopping") || 11500 },
   ];
 
-  const budgetData = budgets && budgets.length > 0 ? budgets : sampleBudgets;
+  // Map budget data with actual spending
+  const budgetData = budgets && budgets.length > 0 
+    ? budgets.map((budget: any) => ({
+        ...budget,
+        spent: expenseMap.get(budget.category?.name) || 0
+      }))
+    : sampleBudgets;
 
   return (
     <motion.div
@@ -67,9 +73,9 @@ export function BudgetOverview() {
         </CardHeader>
         <CardContent className="space-y-6">
           {budgetData.map((budget: any, index: number) => {
-            const budgetAmount = parseFloat(budget.amount);
+            const budgetAmount = typeof budget.amount === 'number' ? budget.amount : parseFloat(budget.amount || '0');
             const spentAmount = budget.spent || 0;
-            const percentage = Math.min((spentAmount / budgetAmount) * 100, 100);
+            const percentage = budgetAmount > 0 ? Math.min((spentAmount / budgetAmount) * 100, 100) : 0;
             const isOverBudget = spentAmount > budgetAmount;
 
             return (
@@ -114,7 +120,7 @@ export function BudgetOverview() {
               />
               {isOverBudget && (
                 <p className="text-xs text-red-600">
-                  Over budget by ${(spentAmount - budgetAmount).toFixed(0)}
+                  Over budget by {formatCurrency(spentAmount - budgetAmount)}
                 </p>
               )}
             </div>

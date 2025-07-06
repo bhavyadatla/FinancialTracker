@@ -25,6 +25,12 @@ export function MonthlyExpensesChart() {
     queryFn: () => fetch(`/api/analytics/monthly-expenses?months=${getMonthsFromFilter(timeFilter)}`).then(res => res.json()),
   });
 
+  // Clean and ensure data is properly formatted
+  const chartData = monthlyData ? monthlyData.map((item: any) => ({
+    month: item.month,
+    amount: typeof item.amount === 'number' ? Math.round(item.amount) : 0
+  })) : [];
+
   const barColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316', '#84cc16'];
 
   if (isLoading) {
@@ -75,9 +81,9 @@ export function MonthlyExpensesChart() {
         </CardHeader>
         <CardContent>
           <div className="h-80">
-            {monthlyData && monthlyData.length > 0 ? (
+            {chartData && chartData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthlyData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <defs>
                     <linearGradient id="colorExpenses" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
@@ -112,7 +118,7 @@ export function MonthlyExpensesChart() {
                     fill="url(#colorExpenses)" 
                     radius={[6, 6, 0, 0]}
                   >
-                    {monthlyData.map((entry: any, index: number) => (
+                    {chartData.map((entry: any, index: number) => (
                       <Cell key={`cell-${index}`} fill={barColors[index % barColors.length]} />
                     ))}
                   </Bar>

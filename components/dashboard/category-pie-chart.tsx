@@ -13,6 +13,9 @@ export function CategoryPieChart() {
     queryKey: ["/api/analytics/category-expenses"],
   });
 
+  // Calculate total amount for display
+  const totalAmount = categoryData ? categoryData.reduce((sum: number, item: any) => sum + item.amount, 0) : 0;
+
   if (isLoading) {
     return (
       <motion.div
@@ -64,10 +67,15 @@ export function CategoryPieChart() {
       <Card className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-slate-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-              <i className="fas fa-chart-pie text-purple-600"></i>
-              Expenses by Category
-            </CardTitle>
+            <div>
+              <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                <i className="fas fa-chart-pie text-purple-600"></i>
+                Expenses by Category
+              </CardTitle>
+              <p className="text-sm text-slate-600 mt-1">
+                Total: {formatCurrency(totalAmount)}
+              </p>
+            </div>
             <Select value={period} onValueChange={setPeriod}>
               <SelectTrigger className="w-auto text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white">
                 <SelectValue />
