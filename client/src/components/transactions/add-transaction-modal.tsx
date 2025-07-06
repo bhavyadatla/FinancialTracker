@@ -9,8 +9,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { insertTransactionSchema, type InsertTransaction } from "@shared/schema";
+import { insertTransactionSchema, type InsertTransaction, type Category } from "@shared/mongodb-types";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useEffect } from "react";
 
 interface AddTransactionModalProps {
   open: boolean;
@@ -20,10 +21,6 @@ interface AddTransactionModalProps {
 export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
-  const { data: categories } = useQuery({
-    queryKey: ["/api/categories"],
-  });
 
   const form = useForm<InsertTransaction>({
     resolver: zodResolver(insertTransactionSchema),
@@ -35,6 +32,18 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
       type: "expense",
     },
   });
+
+  const transactionType = form.watch("type");
+
+  const { data: categories = [] } = useQuery<Category[]>({
+    queryKey: [`/api/categories/${transactionType}`],
+    enabled: !!transactionType,
+  });
+
+  // Clear category selection when transaction type changes
+  useEffect(() => {
+    form.setValue("categoryId", "");
+  }, [transactionType, form]);
 
   const addTransactionMutation = useMutation({
     mutationFn: (data: InsertTransaction) => apiRequest("POST", "/api/transactions", data),
@@ -124,11 +133,17 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {categories?.map((category) => (
-                        <SelectItem key={category._id} value={category._id}>
-                          {category.name}
+                      {categories && categories.length > 0 ? (
+                        categories.map((category: Category) => (
+                          <SelectItem key={category._id} value={category._id}>
+                            {category.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="" disabled>
+                          No categories available
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />
